@@ -44,7 +44,7 @@
 
 ## 🐛 Bugs / observations
 
-(rien pour l'instant)
+- PrestaShop bascule en mode AJAX si Accept inclut application/json — Accept doit rester strictement text/html. Découvert pendant le scraping de viral-surf.com.
 
 ## 💡 Idées
 
