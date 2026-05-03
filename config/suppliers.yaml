@@ -1,0 +1,130 @@
+# Configuration des fournisseurs et de leurs collections à scraper.
+# Catégories métier autorisées : fins | leashes | pads | covers | transport
+
+allowed_categories:
+  - fins
+  - leashes
+  - pads
+  - covers
+  - transport
+
+suppliers:
+
+  # ═════════════════════════════════════════════════════════════
+  # VIRAL SURF — PrestaShop, multi-marques (Futures, FCS, Just, etc.)
+  # ═════════════════════════════════════════════════════════════
+  viral:
+    name: "Viral Surf"
+    type: "prestashop"
+    base_url: "https://www.viral-surf.com"
+    rate_limit_seconds: 1.5
+    default_brand: null  # multi-marques, à extraire du nom du produit ou du breadcrumb
+    collections:
+      # Fins
+      - path: "/fr/129-futures"
+        category: "fins"
+        subcategory: "futures"
+      - path: "/fr/2908-derives-fcs"
+        category: "fins"
+        subcategory: "fcs"
+      - path: "/fr/297-derives-compatibles-dual-tab"
+        category: "fins"
+        subcategory: "fcs-compatible"
+      - path: "/fr/74-derives-longboard"
+        category: "fins"
+        subcategory: "longboard"
+      # Leashes
+      - path: "/fr/149-leash-de-surf"
+        category: "leashes"
+        subcategory: "just"
+      # Pads
+      - path: "/fr/156-pads"
+        category: "pads"
+        subcategory: null
+      # Covers (housses Just)
+      - path: "/fr/2913-housses"
+        category: "covers"
+        subcategory: "just"
+      # Transport — TODO: vérifier les handles exacts (cf. todo-items.md)
+
+  # ═════════════════════════════════════════════════════════════
+  # FCS EUROPE — Shopify, mono-marque, Cloudflare → rate-limit doux
+  # ═════════════════════════════════════════════════════════════
+  fcs:
+    name: "FCS Europe"
+    type: "shopify"
+    base_url: "https://www.surffcs.eu"
+    rate_limit_seconds: 3.0
+    default_brand: "FCS"
+    collections:
+      # Fins
+      - handle: "fins"
+        category: "fins"
+      - handle: "thrusters"
+        category: "fins"
+      - handle: "quads"
+        category: "fins"
+      - handle: "twins"
+        category: "fins"
+      - handle: "keels"
+        category: "fins"
+      - handle: "longboard"
+        category: "fins"
+      # Leashes
+      - handle: "leashes"
+        category: "leashes"
+      # Pads
+      - handle: "traction"
+        category: "pads"
+      # Covers — TODO: vérifier handle exact (cf. todo-items.md)
+      # Transport — TODO: vérifier handle exact (cf. todo-items.md)
+
+  # ═════════════════════════════════════════════════════════════
+  # SURF LOUNGE — Shopify, multi-marques (Creatures, JS, Sex Wax…)
+  # ═════════════════════════════════════════════════════════════
+  surflounge:
+    name: "Surf Lounge"
+    type: "shopify"
+    base_url: "https://www.surflounge.fr"
+    rate_limit_seconds: 1.0
+    default_brand: null  # multi-marques, vendor par produit
+    collections:
+      # Fins
+      - handle: "derives"
+        category: "fins"
+      # Leashes
+      - handle: "leash"
+        category: "leashes"
+      # Pads
+      - handle: "pads"
+        category: "pads"
+      # Covers
+      - handle: "housses"
+        category: "covers"
+      # Transport
+      - handle: "accessoires-auto-rack-velo"
+        category: "transport"
+
+  # ═════════════════════════════════════════════════════════════
+  # DEFLOW SURF — Shopify, mono-marque
+  # ═════════════════════════════════════════════════════════════
+  deflow:
+    name: "Deflow Surf"
+    type: "shopify"
+    base_url: "https://www.deflowsurf.com"
+    rate_limit_seconds: 1.0
+    default_brand: "Deflow"
+    collections:
+      # Fins
+      - handle: "surf-fins"
+        category: "fins"
+      # Leashes
+      - handle: "all-leashes"
+        category: "leashes"
+      # Pads
+      - handle: "all-surf-traction-pads"
+        category: "pads"
+      # Covers
+      - handle: "surfboard-covers"
+        category: "covers"
+      # Transport — TODO: vérifier si Deflow a des produits transport (cf. todo-items.md)
