@@ -26,13 +26,29 @@
 - [ ] Comparer les TTC entre fournisseurs : Viral et Surf Lounge sont-ils HT ou TTC ? Confirmer.
 - [ ] Pour les fournisseurs multi-marques (Viral ✅, Surf Lounge), s'assurer que la marque est bien extraite (utile pour comparer entre fournisseurs)
 
-## 📦 Phase 2 — Persistence + API (futur)
+## ✅ Phase 2A — Done
 
-- [ ] Schéma Supabase : `catalog_snapshots`, `catalog_items`
-- [ ] FastAPI sur Render
-- [ ] GitHub Actions cron nocturne (3h)
-- [ ] Endpoints `/catalog/active`, `/snapshots/{id}/diff`, `/snapshots/{id}/accept`
-- [ ] Système de validation manuelle (pending → active)
+- [x] Schéma Supabase (`db/schema.sql`)
+- [x] Module `alibabot/storage.py`
+- [x] Script cron `cron/nightly_scrape.py`
+- [x] Workflow GitHub Actions mensuel + manuel
+- [x] CLI `push-snapshot` et `list-snapshots`
+- [x] Auto-purge `rejected`/`pending` > 7 jours
+
+## 🚧 Phase 2A — À faire côté utilisateur
+
+- [ ] Exécuter `db/schema.sql` dans le SQL Editor Supabase
+- [ ] Créer `.env` local avec `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+- [ ] Tester `alibabot push-snapshot snapshots/<dernier>.json` en local
+- [ ] Configurer secrets GitHub : `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+- [ ] Trigger manuel du workflow GitHub Actions pour valider end-to-end
+
+## 📦 Phase 2B — À venir
+
+- [ ] FastAPI déployé sur Render
+- [ ] Endpoints : `/snapshots`, `/snapshots/{id}/diff`, `/snapshots/{id}/accept`, `/snapshots/{id}/reject`, `/catalog/active`
+- [ ] Policies RLS Supabase pour l'API
+- [ ] Auth `x-api-secret` (cohérent avec garybot-api)
 - [ ] Tests unitaires (pytest)
 
 ## 🎨 Phase 3 — Frontend + Odoo (futur)
