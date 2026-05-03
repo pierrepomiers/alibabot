@@ -85,5 +85,63 @@ def _print_summary(snapshot, path: Path):
             console.print(f"  ... et {len(snapshot.errors) - 10} autres (voir snapshot JSON)")
 
 
+@app.command("push-snapshot")
+def push_snapshot(
+    file: Path = typer.Argument(..., help="Chemin vers un snapshot JSON local"),
+    triggered_by: str = typer.Option("cli_push", "--source", help="cli_push | manual | cron"),
+):
+    """Pousse un snapshot JSON local vers Supabase (status=pending)."""
+    import json
+    from alibabot.models import ScrapeSnapshot
+    from alibabot.storage import SupabaseStorage
+
+    if not file.exists():
+        console.print(f"[red]File not found: {file}[/]")
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]📂 Loading snapshot from {file}...[/]")
+    data = json.loads(file.read_text())
+    snapshot = ScrapeSnapshot(**data)
+    console.print(f"   {len(snapshot.items)} items, {len(snapshot.errors)} errors")
+
+    console.print(f"[cyan]📤 Pushing to Supabase (triggered_by={triggered_by})...[/]")
+    storage = SupabaseStorage()
+    snap_uuid = storage.save_snapshot(snapshot, triggered_by=triggered_by)
+    console.print(f"[green]✅ Saved: id={snap_uuid}, status=pending[/]")
+
+
+@app.command("list-snapshots")
+def list_snapshots(
+    status: str = typer.Option(None, "--status", "-s", help="Filtrer par status"),
+    limit: int = typer.Option(20, "--limit", "-n"),
+):
+    """Liste les snapshots stockés dans Supabase."""
+    from alibabot.storage import SupabaseStorage
+
+    storage = SupabaseStorage()
+    rows = storage.list_snapshots(status=status, limit=limit)
+    if not rows:
+        console.print("[yellow]No snapshots found.[/]")
+        return
+
+    table = Table(title="Snapshots Supabase")
+    table.add_column("snapshot_id", style="cyan")
+    table.add_column("status")
+    table.add_column("triggered_by")
+    table.add_column("created_at")
+    table.add_column("items", justify="right")
+    for row in rows:
+        stats = row.get("stats", {}) or {}
+        total_items = sum((s or {}).get("count", 0) for s in stats.values())
+        table.add_row(
+            row["snapshot_id"],
+            row["status"],
+            row["triggered_by"],
+            row["created_at"][:19],
+            str(total_items),
+        )
+    console.print(table)
+
+
 if __name__ == "__main__":
     app()
