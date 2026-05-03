@@ -15,7 +15,8 @@
 
 ### Améliorations scrapers
 
-- [ ] **viral** — Si la marque n'est pas dans le nom du produit ni dans le breadcrumb, parser la fiche produit individuelle pour la récupérer
+- [x] **viral/brand** — Extraction de la marque depuis le nom (whitelist + match word-boundary). Couverture 98.2% (546/556). Les 10 items restants n'ont aucune marque connue dans le nom (fallback page-fiche encore possible si besoin).
+- [x] **all/price_min_max (Viral)** — Propagation de price_eur vers price_min_eur / price_max_eur dans le scraper PrestaShop pour cohérence avec Shopify.
 - [ ] **viral** — Vérifier la gestion du stock : lire les badges "Rupture de stock" et "Nouveau"
 - [ ] **shopify** — Vérifier la robustesse de la pagination quand un fournisseur a plus de 250 produits dans une collection
 - [ ] **all** — Logger les rejets de catégorie de manière plus visible (ex: stats par fournisseur "X items rejetés car hors-catégorie")
@@ -23,7 +24,7 @@
 ### Données
 
 - [ ] Comparer les TTC entre fournisseurs : Viral et Surf Lounge sont-ils HT ou TTC ? Confirmer.
-- [ ] Pour les fournisseurs multi-marques (Viral, Surf Lounge), s'assurer que la marque est bien extraite (utile pour comparer entre fournisseurs)
+- [ ] Pour les fournisseurs multi-marques (Viral ✅, Surf Lounge), s'assurer que la marque est bien extraite (utile pour comparer entre fournisseurs)
 
 ## 📦 Phase 2 — Persistence + API (futur)
 

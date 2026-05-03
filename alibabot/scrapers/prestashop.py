@@ -9,6 +9,47 @@ from alibabot.scrapers.base import BaseScraper
 from alibabot.utils.http import fetch
 
 
+VIRAL_KNOWN_BRANDS = [
+    "CAPTAIN FIN CO",
+    "VIRAL SURF",
+    "ASTRODECK",
+    "FUTURES",
+    "JUST",
+    "FCS",
+    "OAM",
+]
+
+
+def extract_brand_from_name(name: str) -> str | None:
+    """Extract a known brand from a product name (case-insensitive, word-boundary match).
+
+    Strategies (in order, first match wins):
+    1. Text after the last comma matches a known brand exactly (case-insensitive)
+       e.g. "..., FUTURES." → "FUTURES"
+    2. Known brand appears as a whole word anywhere in the name (case-insensitive)
+       e.g. "Dérive longboard - Futures Performance 7..." → "FUTURES"
+
+    Returns the brand normalized in UPPERCASE, or None if no known brand is found.
+    """
+    if not name:
+        return None
+
+    if "," in name:
+        tail = name.rsplit(",", 1)[1].strip().rstrip(".").strip()
+        tail_upper = tail.upper()
+        for brand in VIRAL_KNOWN_BRANDS:
+            if tail_upper == brand:
+                return brand
+
+    name_upper = name.upper()
+    for brand in VIRAL_KNOWN_BRANDS:
+        pattern = r"(?:^|[^A-Z0-9])" + re.escape(brand) + r"(?:[^A-Z0-9]|$)"
+        if re.search(pattern, name_upper):
+            return brand
+
+    return None
+
+
 class PrestashopScraper(BaseScraper):
     """Scraper PrestaShop pour Viral Surf — parse HTML."""
 
@@ -110,14 +151,18 @@ class PrestashopScraper(BaseScraper):
         if out_of_stock_node and "rupture" in out_of_stock_node.text(strip=True).lower():
             in_stock = False
 
+        detected_brand = extract_brand_from_name(name) or self.config.default_brand
+
         return CatalogItem(
             supplier=self.supplier_id,
             supplier_ref=supplier_ref,
             name=name,
-            brand=self.config.default_brand,
+            brand=detected_brand,
             category=category,
             subcategory=subcategory,
             price_eur=price_eur,
+            price_min_eur=price_eur,
+            price_max_eur=price_eur,
             in_stock=in_stock,
             product_url=product_url,
             image_url=image_url,
