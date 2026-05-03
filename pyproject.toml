@@ -11,8 +11,8 @@ requires-python = ">=3.11"
 [project.scripts]
 alibabot = "alibabot.cli:app"
 
-[tool.setuptools.packages.find]
-include = ["alibabot*"]
+[tool.setuptools]
+packages = ["alibabot", "alibabot.scrapers", "alibabot.utils", "cron"]
 
 [tool.ruff]
 line-length = 100
