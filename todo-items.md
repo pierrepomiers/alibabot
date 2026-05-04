@@ -9,7 +9,7 @@
 
 - [x] **fcs/covers** — résolu : handle `covers` (collection parente : day-covers, travel-covers, stretch-covers, longboard-covers)
 - [x] **fcs/transport** — résolu : handle `auto-accessories` (tie-downs, soft-racks, scooter-bike-racks, key-locks, kanulock)
-- [x] **deflow/transport** — résolu : handle `range` (avec acceptation du risque : items hors-transport seront filtrés par `allowed_categories`)
+- [x] **deflow/transport** — RÉSOLU : Deflow n'a pas de collection transport propre. Tentative avec `range` abandonnée car ratio bruit/signal trop élevé (~40% d'items hors-transport : wax, vis, casquettes). Couverture transport assurée par FCS (18 items) + Surf Lounge (14 items).
 - [ ] **viral/transport** — NON RÉSOLU : Viral Surf n'a pas de collection dédiée transport. Sangles potentielles dans `/fr/313-accessoires-surf` (fourre-tout) mais avec doublons. À reconsidérer Phase 3 si besoin.
 - [x] **viral/covers** — la collection `/fr/2913-housses` est suffisante (multi-marques, pas seulement Just)
 
