@@ -131,7 +131,3 @@ suppliers:
       # Covers
       - handle: "surfboard-covers"
         category: "covers"
-      # Transport (collection "Range" - inclut key locks, racks, mais aussi des items hors-transport
-      # comme fin keys et wax combs qui seront filtrés par allowed_categories)
-      - handle: "range"
-        category: "transport"
