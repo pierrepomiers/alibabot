@@ -7,11 +7,11 @@
 
 ### Handles de collections à confirmer
 
-- [ ] **fcs/covers** — Trouver le handle Shopify exact pour les housses FCS (Stretch Cover, Travel Cover). À vérifier sur https://www.surffcs.eu/
-- [ ] **fcs/transport** — Idem pour les sangles, racks, Cam Lock Tie Down, Soft Racks
-- [ ] **deflow/transport** — Vérifier si Deflow a une gamme transport (drybags inclus ?). À voir sur https://www.deflowsurf.com/
-- [ ] **viral/transport** — Vérifier si Viral Surf a des accessoires de transport et leurs handles
-- [ ] **viral/covers** — La page `/fr/2913-housses` ne couvre que Just, vérifier s'il y a d'autres marques de housses chez Viral
+- [x] **fcs/covers** — résolu : handle `covers` (collection parente : day-covers, travel-covers, stretch-covers, longboard-covers)
+- [x] **fcs/transport** — résolu : handle `auto-accessories` (tie-downs, soft-racks, scooter-bike-racks, key-locks, kanulock)
+- [x] **deflow/transport** — résolu : handle `range` (avec acceptation du risque : items hors-transport seront filtrés par `allowed_categories`)
+- [ ] **viral/transport** — NON RÉSOLU : Viral Surf n'a pas de collection dédiée transport. Sangles potentielles dans `/fr/313-accessoires-surf` (fourre-tout) mais avec doublons. À reconsidérer Phase 3 si besoin.
+- [x] **viral/covers** — la collection `/fr/2913-housses` est suffisante (multi-marques, pas seulement Just)
 
 ### Améliorations scrapers
 
@@ -61,6 +61,12 @@
 - [ ] Tester `/health` et `/config` puis les endpoints authentifiés depuis l'URL Render publique
 - [ ] Configurer UptimeRobot ping `/health` toutes les 5 min (anti-sleep free tier)
 - [ ] Tests unitaires (pytest) — reportés en améliorations
+
+## ✅ Phase 2C — Done
+
+- [x] Compléter la config FCS : ajout `covers` et `auto-accessories`
+- [x] Compléter la config Deflow : ajout `range` (transport)
+- [x] Confirmer absence de collection transport chez Viral (acceptable, redondance avec FCS auto-accessories et Surf Lounge accessoires-auto-rack-velo)
 
 ## 🎨 Phase 3 — Frontend + Odoo (futur)
 
