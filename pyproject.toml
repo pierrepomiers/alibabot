@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 alibabot = "alibabot.cli:app"
 
 [tool.setuptools]
-packages = ["alibabot", "alibabot.scrapers", "alibabot.utils", "cron"]
+packages = ["alibabot", "alibabot.scrapers", "alibabot.utils", "cron", "api", "api.routes", "api.services"]
 
 [tool.ruff]
 line-length = 100
