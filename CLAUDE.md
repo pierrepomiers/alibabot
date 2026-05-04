@@ -9,9 +9,27 @@
 
 Nom inspiré d'Ali Baba (le marchand des Mille et Une Nuits qui ouvre la caverne aux trésors).
 
-## 2. État actuel — Phase 2A
+## 2. État actuel — Phase 2B
 
-CLI scraping ✅ Phase 1 + persistence Supabase ✅ Phase 2A. Cron mensuel via GitHub Actions, snapshots stockés avec `status="pending"`. Validation manuelle (accept/reject) et API à venir en Phase 2B.
+CLI scraping ✅ + Supabase persistence ✅ + cron mensuel ✅ + **API FastAPI sur Render ✅**.
+
+L'API expose les snapshots (list, detail, diff, accept, reject) et le catalogue actif (filtres riches + facettes).
+Auth via header `x-api-secret`. Déployée sur Render free tier, auto-deploy on push main.
+
+### API endpoints
+
+| Méthode | Route | Auth | Description |
+|---|---|---|---|
+| GET / HEAD | `/health` | non | Keep-alive (UptimeRobot) |
+| GET | `/config` | non | Diagnostic env vars (sans révéler les valeurs) |
+| GET | `/snapshots` | oui | Liste paginée (filtre `?status=`, `?limit=`) |
+| GET | `/snapshots/{snapshot_id}` | oui | Détail (avec error_log complet) |
+| GET | `/snapshots/{snapshot_id}/diff?detail=full\|summary` | oui | Diff vs snapshot actif |
+| POST | `/snapshots/{snapshot_id}/accept` | oui | Active ce snapshot, archive l'ancien |
+| POST | `/snapshots/{snapshot_id}/reject?reason=...` | oui | Rejette ce snapshot |
+| GET | `/catalog/active` | oui | Liste paginée + filtres riches |
+| GET | `/catalog/active/facets` | oui | Compteurs par fournisseur / marque / catégorie |
+| POST | `/admin/purge` | oui | Trigger purge_old_snapshots manuel |
 
 ## 3. Catégories métier (whitelist stricte)
 
@@ -89,8 +107,9 @@ Pour ajouter une nouvelle plateforme : créer un nouveau scraper dans `alibabot/
 
 | Var | Où | Rôle |
 |---|---|---|
-| `SUPABASE_URL` | GitHub Actions secret + `.env` local | URL projet Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | GitHub Actions secret + `.env` local | Auth bypass RLS |
+| `SUPABASE_URL` | GitHub Actions secret + Render env + `.env` local | URL projet Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | GitHub Actions secret + Render env + `.env` local | Auth bypass RLS |
+| `API_SECRET` | Render env + `.env` local | Header `x-api-secret` attendu (= `alibabot2026`) |
 
 ## 7. Comment tester
 

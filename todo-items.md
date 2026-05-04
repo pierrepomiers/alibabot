@@ -43,13 +43,24 @@
 - [ ] Configurer secrets GitHub : `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
 - [ ] Trigger manuel du workflow GitHub Actions pour valider end-to-end
 
-## 📦 Phase 2B — À venir
+## ✅ Phase 2B — Done
 
-- [ ] FastAPI déployé sur Render
-- [ ] Endpoints : `/snapshots`, `/snapshots/{id}/diff`, `/snapshots/{id}/accept`, `/snapshots/{id}/reject`, `/catalog/active`
-- [ ] Policies RLS Supabase pour l'API
-- [ ] Auth `x-api-secret` (cohérent avec garybot-api)
-- [ ] Tests unitaires (pytest)
+- [x] FastAPI structuré dans `api/` (main, auth, schemas, routes/, services/)
+- [x] Endpoints snapshots : list, detail, diff (full|summary), accept, reject
+- [x] Endpoints catalog : `/catalog/active` (filtres riches) + `/catalog/active/facets`
+- [x] Endpoint admin : `/admin/purge`
+- [x] Auth `x-api-secret` sur toutes les routes (sauf `/health` et `/config`)
+- [x] CORS permissif (préparation Phase 3 cross-origin)
+- [x] `render.yaml` (auto-deploy on push main, plan free, region frankfurt)
+
+## 🚧 Phase 2B — À faire côté utilisateur
+
+- [ ] Connecter le repo `alibabot` à Render (New Web Service → Render lit `render.yaml`)
+- [ ] Configurer 3 env vars dans Render dashboard : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `API_SECRET=alibabot2026`
+- [ ] Déclencher le premier deploy
+- [ ] Tester `/health` et `/config` puis les endpoints authentifiés depuis l'URL Render publique
+- [ ] Configurer UptimeRobot ping `/health` toutes les 5 min (anti-sleep free tier)
+- [ ] Tests unitaires (pytest) — reportés en améliorations
 
 ## 🎨 Phase 3 — Frontend + Odoo (futur)
 
