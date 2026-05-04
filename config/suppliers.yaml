@@ -76,8 +76,12 @@ suppliers:
       # Pads
       - handle: "traction"
         category: "pads"
-      # Covers — TODO: vérifier handle exact (cf. todo-items.md)
-      # Transport — TODO: vérifier handle exact (cf. todo-items.md)
+      # Covers
+      - handle: "covers"
+        category: "covers"
+      # Transport
+      - handle: "auto-accessories"
+        category: "transport"
 
   # ═════════════════════════════════════════════════════════════
   # SURF LOUNGE — Shopify, multi-marques (Creatures, JS, Sex Wax…)
@@ -127,4 +131,7 @@ suppliers:
       # Covers
       - handle: "surfboard-covers"
         category: "covers"
-      # Transport — TODO: vérifier si Deflow a des produits transport (cf. todo-items.md)
+      # Transport (collection "Range" - inclut key locks, racks, mais aussi des items hors-transport
+      # comme fin keys et wax combs qui seront filtrés par allowed_categories)
+      - handle: "range"
+        category: "transport"
