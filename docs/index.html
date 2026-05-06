@@ -99,35 +99,37 @@
       margin: 0 auto;
       padding: 16px;
     }
+    .app-shell.full-width {
+      max-width: none;
+      width: 100%;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
 
-    header.topbar {
+    .app-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 12px 0 20px;
+      padding: 0 0 16px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
     }
-    .brand {
+    .logo-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .app-logo {
+      height: 128px;
+      width: auto;
+      display: block;
+    }
+    .header-right {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 18px;
-    }
-    .brand img {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      object-fit: cover;
-      background: var(--bg-elevated);
-    }
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 12px;
       font-size: 14px;
       color: var(--text-muted);
     }
@@ -406,6 +408,7 @@
       display: grid;
       grid-template-columns: 250px 1fr;
       gap: 1.5rem;
+      align-items: start;
     }
     .facets {
       background: var(--bg-card);
@@ -904,15 +907,15 @@
       const userLabel = S.user?.email ? escapeHtml(S.user.email) : "";
       const validationActive = S.view === "snapshots" || S.view === "diff";
       const catalogActive = S.view === "catalog";
+      const fullWidth = S.view === "catalog" ? " full-width" : "";
       return `
-        <div class="app-shell">
-          <header class="topbar">
-            <div class="brand">
-              <img src="alibabot_logo.png" alt="Alibabot" onerror="this.style.visibility='hidden'">
-              <span>Alibabot</span>
-            </div>
-            <div class="topbar-right">
-              ${userLabel ? `<span>${userLabel}</span>` : ""}
+        <div class="app-shell${fullWidth}">
+          <header class="app-header">
+            <a href="#" class="logo-link" data-action="home">
+              <img src="alibabot_logo.png" alt="Alibabot" class="app-logo" onerror="this.style.visibility='hidden'">
+            </a>
+            <div class="header-right">
+              ${userLabel ? `<span class="user-email">${userLabel}</span>` : ""}
               <button id="btn-logout">Déconnexion</button>
             </div>
           </header>
@@ -1319,6 +1322,14 @@
             }
           }
         });
+      });
+
+      // Logo (home)
+      document.querySelector('[data-action="home"]')?.addEventListener("click", (e) => {
+        e.preventDefault();
+        S.view = "snapshots";
+        S.currentDiff = null;
+        render();
       });
 
       // Tabs
