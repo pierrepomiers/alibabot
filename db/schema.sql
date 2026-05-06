@@ -71,19 +71,29 @@ returns table(deleted_count int, deleted_status text) as $$
 declare
     rejected_deleted int;
     pending_deleted int;
+    archived_deleted int;
 begin
+    -- Rejected supprimés après 7 jours
     delete from catalog_snapshots
     where status = 'rejected' and created_at < now() - interval '7 days';
     get diagnostics rejected_deleted = row_count;
 
+    -- Pending non validés supprimés après 7 jours
     delete from catalog_snapshots
     where status = 'pending' and created_at < now() - interval '7 days';
     get diagnostics pending_deleted = row_count;
 
+    -- Archived supprimés après 60 jours
+    delete from catalog_snapshots
+    where status = 'archived' and created_at < now() - interval '60 days';
+    get diagnostics archived_deleted = row_count;
+
     return query
     select rejected_deleted, 'rejected'::text
     union all
-    select pending_deleted, 'pending'::text;
+    select pending_deleted, 'pending'::text
+    union all
+    select archived_deleted, 'archived'::text;
 end;
 $$ language plpgsql security definer;
 
