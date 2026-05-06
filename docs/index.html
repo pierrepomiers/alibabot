@@ -747,6 +747,20 @@
       }
     }
 
+    async function restoreSnapshot(snapshotId) {
+      if (!confirm("Réactiver ce snapshot comme catalogue actif ? L'actuel actif sera archivé.")) return;
+      S.loading = true; S.error = null; render();
+      try {
+        const email = S.user?.email || "frontend";
+        await apiCall(`/snapshots/${encodeURIComponent(snapshotId)}/restore?activated_by=${encodeURIComponent(email)}`, { method: "POST" });
+        await fetchSnapshots();
+      } catch (e) {
+        S.error = `Erreur lors de la restauration : ${e.message}`;
+      } finally {
+        S.loading = false; render();
+      }
+    }
+
     async function rejectSnapshot(snapshotId) {
       const reason = prompt(`Raison du rejet du snapshot ${snapshotId} ?`, "");
       if (reason === null) return;
@@ -989,6 +1003,7 @@
           ? `<span class="badge badge-error">${snap.error_count} err</span>`
           : "";
         const canDiff = snap.status === "pending";
+        const canRestore = snap.status === "archived";
         html += `
           <div class="card">
             <div class="card-row">
@@ -1004,6 +1019,7 @@
               <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                 <span class="badge badge-${escapeHtml(snap.status)}">${escapeHtml(snap.status)}</span>
                 ${canDiff ? `<button class="primary" data-diff="${escapeHtml(snap.snapshot_id)}">Voir le diff</button>` : ""}
+                ${canRestore ? `<button data-restore="${escapeHtml(snap.snapshot_id)}">🔄 Restaurer</button>` : ""}
               </div>
             </div>
           </div>
@@ -1296,6 +1312,9 @@
       });
       document.querySelectorAll("[data-reject]").forEach((b) => {
         b.addEventListener("click", () => rejectSnapshot(b.dataset.reject));
+      });
+      document.querySelectorAll("[data-restore]").forEach((b) => {
+        b.addEventListener("click", () => restoreSnapshot(b.dataset.restore));
       });
 
       document.querySelectorAll("[data-filter-section]").forEach((el) => {
