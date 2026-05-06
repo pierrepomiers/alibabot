@@ -24,3 +24,6 @@ htmlcov/
 snapshots/*.json
 !snapshots/.gitkeep
 !snapshots/_reference/
+
+# Frontend dev
+frontend/.DS_Store
