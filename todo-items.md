@@ -92,6 +92,18 @@
 - [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
 - [x] Frontend : scroll infini via IntersectionObserver
 
+## ✅ Phase 3B+ — Done (consolidation)
+
+- [x] Cron hebdomadaire (lundi 2h UTC) au lieu de mensuel
+- [x] Rétention 60 jours pour les snapshots archived
+- [x] Endpoint POST /snapshots/{id}/restore
+- [x] Bouton "Restaurer" sur les archived dans l'UI
+
+## 🚧 Phase 3B+ — À faire côté utilisateur
+
+- [ ] Exécuter le nouveau `db/schema.sql` (fonction `purge_old_snapshots` mise à jour) dans le SQL Editor Supabase
+- [ ] Vérifier que le prochain run du workflow GitHub Actions a bien lieu un lundi
+
 ## 📦 Phase 3C — À venir
 
 - [ ] Endpoint `GET /orders/draft` dans garybot-api

@@ -27,6 +27,7 @@ Auth via header `x-api-secret`. Déployée sur Render free tier, auto-deploy on 
 | GET | `/snapshots/{snapshot_id}/diff?detail=full\|summary` | oui | Diff vs snapshot actif |
 | POST | `/snapshots/{snapshot_id}/accept` | oui | Active ce snapshot, archive l'ancien |
 | POST | `/snapshots/{snapshot_id}/reject?reason=...` | oui | Rejette ce snapshot |
+| POST | `/snapshots/{snapshot_id}/restore` | oui | Réactive un snapshot `archived` comme actif (refuse 400 si non-archived) |
 | GET | `/catalog/active` | oui | Liste paginée + filtres riches |
 | GET | `/catalog/active/facets` | oui | Compteurs par fournisseur / marque / catégorie |
 | POST | `/admin/purge` | oui | Trigger purge_old_snapshots manuel |
@@ -78,19 +79,20 @@ Pour ajouter une nouvelle plateforme : créer un nouveau scraper dans `alibabot/
 - Project URL : `https://wmlxljwabqpiosvhmmmd.supabase.co`
 - Tables : `catalog_snapshots`, `catalog_items`
 - Vue : `catalog_active_items`
-- Function : `purge_old_snapshots()` (purge `rejected` + `pending` > 7 jours)
+- Function : `purge_old_snapshots()` (purge `rejected` + `pending` > 7 jours, `archived` > 60 jours)
 - Auth : `service_role` key (bypass RLS, OK pour le cron interne)
 - RLS activé mais sans policies anon → DB privée par défaut (Phase 2B ajoutera les policies pour l'API)
 
-## 5bis. Workflow opérationnel
+## 5bis. Workflow opérationnel (Phase 3B+ updated)
 
 | Évènement | Effet |
 |---|---|
-| Cron mensuel (1er à 3h UTC) | Scrape les 4 fournisseurs, push snapshot status=pending |
+| Cron hebdomadaire (lundi 2h UTC) | Scrape les 4 fournisseurs, push snapshot status=pending |
 | `workflow_dispatch` (bouton GitHub) | Trigger manuel à la demande |
 | `alibabot push-snapshot file.json` | Push manuel local → Supabase |
 | `alibabot list-snapshots` | Liste les snapshots Supabase |
-| Auto-purge | Snapshots `rejected` ou `pending` > 7 jours supprimés |
+| Auto-purge | rejected/pending > 7j, archived > 60j |
+| Restore | Réactive un snapshot archived comme actif (UI ou API) |
 
 ## 6. Conventions
 
