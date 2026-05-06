@@ -134,15 +134,28 @@ Supabase email/pass. Le client utilise la clé `anon public` (jamais la `service
 - `S.view = "login"` : formulaire email/pass
 - `S.view = "snapshots"` : liste des snapshots
 - `S.view = "diff"` : diff détaillé + accept/reject
+- `S.view = "catalog"` : grille produits + sidebar facettes + scroll infini
 
 ### Vues à venir
 
-- Phase 3B : `S.view = "catalog"` (consultation produits avec filtres)
 - Phase 3D : modal "ajouter au devis Odoo"
+
+### Phase 3B : Vue catalogue
+
+Onglet "Catalogue" en plus de "Validation" dans le header. `S.view` peut être `"snapshots" | "diff" | "catalog"`.
+
+Sidebar gauche (250px, sticky) : facettes (fournisseur, catégorie, marque), inputs prix min/max, checkbox "en stock uniquement", bouton "Réinitialiser les filtres".
+
+Zone centrale : barre de recherche (debounce 300ms), dropdown de tri, grille de cartes responsive (`auto-fill, minmax(200px, 1fr)`), scroll infini via `IntersectionObserver` sur `#catalog-sentinel`.
+
+Filtres backend supportés : `supplier`, `category`, `subcategory`, `brand`, `in_stock`, `q`, `min_price`, `max_price`.
+Tri : `sort=name|price|brand|in_stock|recent` + `direction=asc|desc` (cf. `ALLOWED_SORTS` dans `api/services/catalog_service.py`).
+
+Facettes pour Phase 3B = **globales** (sur tout le snapshot, non cross-filtrées). L'amélioration "cross-filter facets" (compteurs intelligents qui ignorent le filtre courant) est reportée plus tard si besoin.
 
 ### URL de la page
 
-GitHub Pages : `https://pierrepomiers.github.io/alibabot/frontend/` (à confirmer après config).
+GitHub Pages : `https://pierrepomiers.github.io/alibabot/` (publication via dossier `/docs`).
 
 ## 8. Suivi des tâches
 

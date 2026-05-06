@@ -83,23 +83,36 @@
 - [ ] Configurer GitHub Pages : Settings → Pages → Branch `main` / Folder `/frontend`
 - [ ] Ouvrir l'URL et tester le flow complet (login → liste → diff → accept)
 
-## 📦 Phase 3B — À venir
+## ✅ Phase 3B — Done
 
-- [ ] Vue catalogue avec filtres facettés
-- [ ] Recherche texte
-- [ ] Pagination
-- [ ] Cartes produits avec photo
+- [x] Backend : paramètres `sort` + `direction` sur `/catalog/active`
+- [x] Frontend : onglets Validation / Catalogue
+- [x] Frontend : vue catalogue avec sidebar facettée (fournisseur, catégorie, marque, prix, stock)
+- [x] Frontend : recherche texte (debounce 300ms) + tri
+- [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
+- [x] Frontend : scroll infini via IntersectionObserver
 
 ## 📦 Phase 3C — À venir
 
 - [ ] Endpoint `GET /orders/draft` dans garybot-api
 - [ ] Endpoint `POST /orders/{id}/lines` dans garybot-api
+- [ ] Documenter le pattern d'auth croisé alibabot↔garybot
 
 ## 📦 Phase 3D — À venir
 
-- [ ] Modal "ajouter au devis" sur les cartes produits
+- [ ] Bouton "Ajouter au devis" sur chaque carte produit
+- [ ] Modal avec dropdown des devis draft + sélecteur quantité + variant
 - [ ] Toast de confirmation
+- [ ] `CONFIG.garybotApiUrl` dans `docs/index.html`
 - [ ] Branding : intégrer le visuel "Ali Baba au fez" (favicon, header)
+
+## 🎨 Phase 3+ : améliorations UX
+
+- [ ] Cross-filter facets (compteurs intelligents qui ignorent le filtre courant)
+- [ ] Sauvegarde des filtres dans l'URL (deep linking)
+- [ ] Comparateur multi-fournisseurs (même produit chez plusieurs distributeurs)
+- [ ] Favoris / wishlist
+- [ ] Historique de prix par produit (Phase 4 si on garde l'historique des snapshots)
 
 ## 🐛 Bugs / observations
 
