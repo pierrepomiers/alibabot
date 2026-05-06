@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alibabot — Validation</title>
+  <link rel="icon" type="image/png" href="alibabot_logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #131826;
+      --bg-elevated: #1a2032;
+      --border: #2a3142;
+      --text: #e4e7ed;
+      --text-muted: #8b95a7;
+      --accent: #4a9eff;
+      --accent-hover: #6db1ff;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --info: #60a5fa;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+
+    button {
+      font: inherit;
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    button:hover:not(:disabled) {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0a0e1a;
+      font-weight: 600;
+    }
+    button.primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    button.success {
+      background: var(--success);
+      border-color: var(--success);
+      color: #0a0e1a;
+      font-weight: 600;
+    }
+    button.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #0a0e1a;
+      font-weight: 600;
+    }
+
+    input, select {
+      font: inherit;
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      width: 100%;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* Layout */
+    .app-shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    header.topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: var(--bg-elevated);
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card.active-snap {
+      border-color: var(--success);
+      background: linear-gradient(135deg, var(--bg-card), rgba(74, 222, 128, 0.04));
+    }
+
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .card-row .meta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .card-row .meta strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-pending { background: rgba(251, 191, 36, 0.18); color: var(--warning); }
+    .badge-active { background: rgba(74, 222, 128, 0.18); color: var(--success); }
+    .badge-rejected { background: rgba(248, 113, 113, 0.18); color: var(--danger); }
+    .badge-archived { background: rgba(139, 149, 167, 0.2); color: var(--text-muted); }
+    .badge-error { background: rgba(248, 113, 113, 0.2); color: var(--danger); }
+
+    /* Login */
+    .login-box {
+      max-width: 380px;
+      margin: 80px auto;
+      padding: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .login-box h1 {
+      margin: 0 0 20px;
+      font-size: 22px;
+    }
+    .login-box label {
+      display: block;
+      margin: 12px 0 4px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .login-box button {
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    /* Filter row */
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Diff sections */
+    .diff-summary {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 14px 16px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .diff-summary span { white-space: nowrap; }
+    .diff-summary .added { color: var(--success); }
+    .diff-summary .removed { color: var(--danger); }
+    .diff-summary .price { color: var(--warning); }
+    .diff-summary .stock { color: var(--info); }
+
+    details.section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    details.section[open] { border-color: var(--accent); }
+    details.section > summary {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    details.section > summary::-webkit-details-marker { display: none; }
+    details.section > summary::before {
+      content: "▸";
+      margin-right: 8px;
+      transition: transform 0.15s;
+      color: var(--text-muted);
+    }
+    details.section[open] > summary::before { transform: rotate(90deg); }
+    details.section .section-body {
+      padding: 0 16px 12px;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .section-added > summary { color: var(--success); }
+    .section-removed > summary { color: var(--danger); }
+    .section-price > summary { color: var(--warning); }
+    .section-stock > summary { color: var(--info); }
+
+    /* Item rows */
+    .item-row {
+      display: grid;
+      grid-template-columns: 90px 100px 1fr auto;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      align-items: center;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row .supp { color: var(--text-muted); font-size: 12px; }
+    .item-row .brand-tag { color: var(--info); font-size: 12px; }
+    .item-row .name { color: var(--text); }
+    .item-row .price { font-weight: 600; text-align: right; white-space: nowrap; }
+    .price-old { color: var(--text-muted); text-decoration: line-through; margin-right: 4px; }
+    .delta-up { color: var(--danger); }
+    .delta-down { color: var(--success); }
+
+    /* Diff filters */
+    .diff-section-filter {
+      padding: 10px 16px 4px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .diff-section-filter input,
+    .diff-section-filter select {
+      width: auto;
+      min-width: 140px;
+      padding: 5px 10px;
+      font-size: 13px;
+    }
+
+    /* Toast / banner */
+    .toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-elevated);
+      border: 1px solid var(--danger);
+      color: var(--text);
+      padding: 10px 38px 10px 14px;
+      border-radius: var(--radius);
+      z-index: 100;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      max-width: 92vw;
+    }
+    .toast .close {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      font-size: 16px;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 40px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 40px 20px;
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+      padding: 16px 0;
+      flex-wrap: wrap;
+    }
+    .actions-bar button { padding: 12px 24px; font-size: 16px; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-bottom: 12px;
+    }
+    .back-link:hover { color: var(--accent); background: none; }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .item-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+      .item-row .price { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"><div class="spinner"></div></div>
+
+  <script>
+    // IMPORTANT: remplacer <ANON_KEY_HERE> par la clé "anon public" du projet Supabase alibabot
+    // (Dashboard Supabase → Settings → API → "anon public" key)
+    const CONFIG = {
+      supabaseUrl: "https://wmlxljwabqpiosvhmmmd.supabase.co",
+      supabaseKey: "<ANON_KEY_HERE>",
+      apiUrl: "https://alibabot.onrender.com",
+      apiSecret: "alibabot2026",
+    };
+
+    // ─── State ───────────────────────────────────────────────────────
+    const S = {
+      view: "loading",       // "loading" | "login" | "snapshots" | "diff"
+      user: null,
+      snapshots: [],
+      filterPendingOnly: false,
+      currentDiff: null,
+      currentSnapshotId: null,
+      diffFilters: { added: { supplier: "", q: "" }, removed: { supplier: "", q: "" }, price: { supplier: "", q: "" }, stock: { supplier: "", q: "" } },
+      loading: false,
+      error: null,
+    };
+
+    let sb;
+
+    // ─── API helper ──────────────────────────────────────────────────
+    async function apiCall(path, opts = {}) {
+      const headers = {
+        "x-api-secret": CONFIG.apiSecret,
+        "Content-Type": "application/json",
+        ...(opts.headers || {}),
+      };
+      if (sb) {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+      const res = await fetch(CONFIG.apiUrl + path, { ...opts, headers });
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try { const j = await res.json(); msg = j.detail || j.message || msg; } catch (_) {}
+        throw new Error(msg);
+      }
+      return res.json();
+    }
+
+    // ─── Auth ────────────────────────────────────────────────────────
+    async function login(email, password) {
+      S.loading = true; S.error = null; render();
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        S.user = data.user;
+        await fetchSnapshots();
+        S.view = "snapshots";
+      } catch (e) {
+        S.error = e.message || "Login failed";
+      } finally {
+        S.loading = false; render();
+      }
+    }
+
+    async function logout() {
+      await sb.auth.signOut();
+      S.user = null;
+      S.snapshots = [];
+      S.currentDiff = null;
+      S.view = "login";
+      render();
+    }
+
+    // ─── Snapshots ──────────────────────────────────────────────────
+    async function fetchSnapshots() {
+      const data = await apiCall("/snapshots?limit=50");
+      S.snapshots = Array.isArray(data) ? data : [];
+    }
+
+    async function refreshSnapshots() {
+      S.loading = true; S.error = null; render();
+      try { await fetchSnapshots(); }
+      catch (e) { S.error = e.message; }
+      finally { S.loading = false; render(); }
+    }
+
+    async function fetchDiff(snapshotId) {
+      S.loading = true; S.error = null; S.currentSnapshotId = snapshotId; S.view = "diff"; render();
+      try {
+        S.currentDiff = await apiCall(`/snapshots/${encodeURIComponent(snapshotId)}/diff?detail=full`);
+      } catch (e) {
+        S.error = e.message;
+        S.currentDiff = null;
+      } finally {
+        S.loading = false; render();
+      }
+    }
+
+    async function acceptSnapshot(snapshotId) {
+      if (!confirm(`Accepter le snapshot ${snapshotId} ? Il deviendra l'actif.`)) return;
+      S.loading = true; S.error = null; render();
+      try {
+        const email = S.user?.email || "frontend";
+        await apiCall(`/snapshots/${encodeURIComponent(snapshotId)}/accept?activated_by=${encodeURIComponent(email)}`, { method: "POST" });
+        await fetchSnapshots();
+        S.view = "snapshots";
+        S.currentDiff = null;
+      } catch (e) {
+        S.error = e.message;
+      } finally {
+        S.loading = false; render();
+      }
+    }
+
+    async function rejectSnapshot(snapshotId) {
+      const reason = prompt(`Raison du rejet du snapshot ${snapshotId} ?`, "");
+      if (reason === null) return;
+      S.loading = true; S.error = null; render();
+      try {
+        const qs = reason ? `?reason=${encodeURIComponent(reason)}` : "";
+        await apiCall(`/snapshots/${encodeURIComponent(snapshotId)}/reject${qs}`, { method: "POST" });
+        await fetchSnapshots();
+        S.view = "snapshots";
+        S.currentDiff = null;
+      } catch (e) {
+        S.error = e.message;
+      } finally {
+        S.loading = false; render();
+      }
+    }
+
+    // ─── Helpers ────────────────────────────────────────────────────
+    function escapeHtml(s) {
+      if (s == null) return "";
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function relativeTime(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      const diff = (Date.now() - d.getTime()) / 1000;
+      if (diff < 60) return "à l'instant";
+      if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
+      if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
+      if (diff < 86400 * 30) return `il y a ${Math.floor(diff / 86400)} j`;
+      return d.toLocaleDateString("fr-FR");
+    }
+
+    function fmtPrice(p) {
+      if (p == null || p === "") return "—";
+      const n = typeof p === "number" ? p : parseFloat(p);
+      if (Number.isNaN(n)) return String(p);
+      return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+    }
+
+    function uniqueSuppliers(items) {
+      const set = new Set();
+      for (const it of items || []) if (it.supplier) set.add(it.supplier);
+      return [...set].sort();
+    }
+
+    function applyItemFilter(items, f) {
+      if (!items) return [];
+      const q = (f.q || "").toLowerCase();
+      return items.filter((it) => {
+        if (f.supplier && it.supplier !== f.supplier) return false;
+        if (q && !(`${it.name || ""} ${it.brand || ""}`).toLowerCase().includes(q)) return false;
+        return true;
+      });
+    }
+
+    // ─── Render ──────────────────────────────────────────────────────
+    function render() {
+      const root = document.getElementById("app");
+      let html = "";
+
+      if (S.error) {
+        html += `<div class="toast">${escapeHtml(S.error)}<button class="close" onclick="dismissError()">×</button></div>`;
+      }
+
+      if (S.view === "loading") {
+        html += `<div class="spinner"></div>`;
+      } else if (S.view === "login") {
+        html += renderLogin();
+      } else {
+        html += renderShell(
+          S.view === "snapshots" ? renderSnapshots() : renderDiff()
+        );
+      }
+
+      root.innerHTML = html;
+      attachHandlers();
+    }
+
+    function dismissError() { S.error = null; render(); }
+
+    function renderShell(inner) {
+      const userLabel = S.user?.email ? escapeHtml(S.user.email) : "";
+      return `
+        <div class="app-shell">
+          <header class="topbar">
+            <div class="brand">
+              <img src="alibabot_logo.png" alt="Alibabot" onerror="this.style.visibility='hidden'">
+              <span>Alibabot — Validation</span>
+            </div>
+            <div class="topbar-right">
+              ${userLabel ? `<span>${userLabel}</span>` : ""}
+              <button id="btn-logout">Déconnexion</button>
+            </div>
+          </header>
+          ${inner}
+        </div>
+      `;
+    }
+
+    function renderLogin() {
+      return `
+        <div class="app-shell">
+          <div class="login-box">
+            <h1>Alibabot</h1>
+            <form id="login-form">
+              <label for="email">Email</label>
+              <input type="email" id="email" autocomplete="username" required>
+              <label for="password">Mot de passe</label>
+              <input type="password" id="password" autocomplete="current-password" required>
+              <button type="submit" class="primary" ${S.loading ? "disabled" : ""}>
+                ${S.loading ? "Connexion…" : "Se connecter"}
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSnapshots() {
+      if (S.loading && !S.snapshots.length) return `<div class="spinner"></div>`;
+
+      const active = S.snapshots.find((s) => s.status === "active");
+      const others = S.snapshots.filter((s) => s !== active);
+      const list = S.filterPendingOnly ? others.filter((s) => s.status === "pending") : others;
+
+      const filterBtn = `
+        <button id="btn-toggle-filter">
+          ${S.filterPendingOnly ? "✓ Pending only" : "Filter: pending only"}
+        </button>
+        <button id="btn-refresh">↻ Rafraîchir</button>
+      `;
+
+      let html = `<div class="filter-row">${filterBtn}</div>`;
+
+      if (active) {
+        html += `<div class="card active-snap" data-section="active">
+          <div class="card-row">
+            <div>
+              <div><strong>Active</strong> — ${escapeHtml(active.snapshot_id)}</div>
+              <div class="meta">
+                <span><strong>${active.item_count}</strong> items</span>
+                <span>activé ${relativeTime(active.activated_at)}</span>
+                ${active.activated_by ? `<span>par ${escapeHtml(active.activated_by)}</span>` : ""}
+              </div>
+            </div>
+            <span class="badge badge-active">active</span>
+          </div>
+        </div>`;
+      }
+
+      if (!list.length) {
+        html += `<div class="empty">Aucun snapshot ${S.filterPendingOnly ? "pending" : ""}.</div>`;
+        return html;
+      }
+
+      for (const snap of list) {
+        const errBadge = snap.error_count > 0
+          ? `<span class="badge badge-error">${snap.error_count} err</span>`
+          : "";
+        const canDiff = snap.status === "pending";
+        html += `
+          <div class="card">
+            <div class="card-row">
+              <div>
+                <div><strong>${escapeHtml(snap.snapshot_id)}</strong></div>
+                <div class="meta">
+                  <span>via <strong>${escapeHtml(snap.triggered_by)}</strong></span>
+                  <span>${relativeTime(snap.created_at)}</span>
+                  <span><strong>${snap.item_count}</strong> items</span>
+                  ${errBadge}
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <span class="badge badge-${escapeHtml(snap.status)}">${escapeHtml(snap.status)}</span>
+                ${canDiff ? `<button class="primary" data-diff="${escapeHtml(snap.snapshot_id)}">Voir le diff</button>` : ""}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      return html;
+    }
+
+    function renderDiff() {
+      if (S.loading || !S.currentDiff) return `<button class="back-link" id="btn-back">← Retour à la liste</button><div class="spinner"></div>`;
+
+      const d = S.currentDiff;
+      const sum = d.summary || {};
+
+      let html = `<button class="back-link" id="btn-back">← Retour à la liste</button>`;
+      html += `<div class="card">
+        <div class="card-row">
+          <div>
+            <div><strong>Snapshot examiné</strong> — ${escapeHtml(d.snapshot_id)} <span class="badge badge-pending">pending</span></div>
+            <div class="meta">
+              <span>Comparé à : <strong>${d.active_snapshot_id ? escapeHtml(d.active_snapshot_id) : "(aucun actif)"}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+      html += `<div class="diff-summary">
+        <span class="added">+${sum.added || 0} ajouts</span>
+        <span class="removed">−${sum.removed || 0} retraits</span>
+        <span class="price">⚡ ${sum.price_changed || 0} prix changés</span>
+        <span class="stock">📦 ${sum.stock_changed || 0} stock changé</span>
+      </div>`;
+
+      html += renderDiffSection("added", "Ajoutés", d.added, "section-added");
+      html += renderDiffSection("removed", "Retirés", d.removed, "section-removed");
+      html += renderDiffSection("price", "Prix changés", d.price_changed, "section-price", "price");
+      html += renderDiffSection("stock", "Stock changé", d.stock_changed, "section-stock", "stock");
+
+      html += `<div class="actions-bar">
+        <button class="success" data-accept="${escapeHtml(d.snapshot_id)}">🟢 Accepter ce snapshot</button>
+        <button class="danger" data-reject="${escapeHtml(d.snapshot_id)}">🔴 Rejeter</button>
+      </div>`;
+
+      return html;
+    }
+
+    function renderDiffSection(key, label, items, cls, kind = "default") {
+      items = items || [];
+      const filter = S.diffFilters[key];
+      const suppliers = uniqueSuppliers(items);
+      const filtered = applyItemFilter(items, filter);
+
+      if (kind === "price") {
+        filtered.sort((a, b) => Math.abs(b.delta_pct || 0) - Math.abs(a.delta_pct || 0));
+      }
+
+      const supplierOptions = suppliers.map((s) =>
+        `<option value="${escapeHtml(s)}" ${filter.supplier === s ? "selected" : ""}>${escapeHtml(s)}</option>`
+      ).join("");
+
+      let body;
+      if (!items.length) {
+        body = `<div class="empty">Aucun item.</div>`;
+      } else if (!filtered.length) {
+        body = `<div class="empty">Aucun item ne correspond aux filtres.</div>`;
+      } else {
+        body = filtered.map((it) => renderItemRow(it, kind)).join("");
+      }
+
+      return `
+        <details class="section ${cls}" ${items.length && (key === "added" || key === "price") ? "open" : ""}>
+          <summary>${label} (${items.length})</summary>
+          <div class="diff-section-filter">
+            <select data-filter-section="${key}" data-filter-field="supplier">
+              <option value="">Tous fournisseurs</option>
+              ${supplierOptions}
+            </select>
+            <input type="text" placeholder="Recherche nom/marque…" value="${escapeHtml(filter.q)}"
+              data-filter-section="${key}" data-filter-field="q">
+          </div>
+          <div class="section-body">${body}</div>
+        </details>
+      `;
+    }
+
+    function renderItemRow(it, kind) {
+      const supp = `<span class="supp">${escapeHtml(it.supplier || "")}</span>`;
+      const brand = `<span class="brand-tag">${escapeHtml(it.brand || "—")}</span>`;
+      const name = `<span class="name">${escapeHtml(it.name || "")}</span>`;
+
+      let trailing;
+      if (kind === "price") {
+        const delta = it.delta_pct;
+        const cls = delta != null && delta >= 0 ? "delta-up" : "delta-down";
+        const deltaStr = delta != null ? `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}%` : "";
+        trailing = `<span class="price"><span class="price-old">${fmtPrice(it.old_price)}</span>${fmtPrice(it.new_price)} <span class="${cls}">${deltaStr}</span></span>`;
+      } else if (kind === "stock") {
+        const oldS = it.old_in_stock ? "✓ stock" : "✗ rupture";
+        const newS = it.new_in_stock ? "✓ stock" : "✗ rupture";
+        trailing = `<span class="price">${oldS} → ${newS}</span>`;
+      } else {
+        trailing = `<span class="price">${fmtPrice(it.price_eur)}</span>`;
+      }
+
+      return `<div class="item-row">${supp}${brand}${name}${trailing}</div>`;
+    }
+
+    // ─── Event handlers ─────────────────────────────────────────────
+    function attachHandlers() {
+      const loginForm = document.getElementById("login-form");
+      if (loginForm) {
+        loginForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          login(email, password);
+        });
+      }
+
+      document.getElementById("btn-logout")?.addEventListener("click", logout);
+      document.getElementById("btn-toggle-filter")?.addEventListener("click", () => {
+        S.filterPendingOnly = !S.filterPendingOnly; render();
+      });
+      document.getElementById("btn-refresh")?.addEventListener("click", refreshSnapshots);
+      document.getElementById("btn-back")?.addEventListener("click", () => {
+        S.view = "snapshots"; S.currentDiff = null; render();
+      });
+
+      document.querySelectorAll("[data-diff]").forEach((b) => {
+        b.addEventListener("click", () => fetchDiff(b.dataset.diff));
+      });
+      document.querySelectorAll("[data-accept]").forEach((b) => {
+        b.addEventListener("click", () => acceptSnapshot(b.dataset.accept));
+      });
+      document.querySelectorAll("[data-reject]").forEach((b) => {
+        b.addEventListener("click", () => rejectSnapshot(b.dataset.reject));
+      });
+
+      document.querySelectorAll("[data-filter-section]").forEach((el) => {
+        const evt = el.tagName === "SELECT" ? "change" : "input";
+        el.addEventListener(evt, (e) => {
+          const section = el.dataset.filterSection;
+          const field = el.dataset.filterField;
+          S.diffFilters[section][field] = e.target.value;
+          // Re-render only diff sections, but full re-render is fine and simpler.
+          // Keep section <details> open state by saving currently-open sections.
+          const openKeys = [...document.querySelectorAll("details.section[open]")].map((d) => d.querySelector("summary").textContent.trim());
+          render();
+          [...document.querySelectorAll("details.section")].forEach((d) => {
+            const key = d.querySelector("summary").textContent.trim();
+            d.open = openKeys.includes(key);
+          });
+          // Restore focus on the input that triggered this
+          if (evt === "input") {
+            const sel = `[data-filter-section="${section}"][data-filter-field="${field}"]`;
+            const next = document.querySelector(sel);
+            if (next) {
+              next.focus();
+              const v = next.value; next.value = ""; next.value = v;
+            }
+          }
+        });
+      });
+    }
+
+    // ─── Boot ────────────────────────────────────────────────────────
+    async function init() {
+      if (!CONFIG.supabaseKey || CONFIG.supabaseKey.includes("ANON_KEY_HERE")) {
+        S.view = "login";
+        S.error = "Clé Supabase non configurée — éditer index.html (supabaseKey).";
+        render();
+        return;
+      }
+      sb = supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session?.user) {
+          S.user = session.user;
+          await fetchSnapshots();
+          S.view = "snapshots";
+        } else {
+          S.view = "login";
+        }
+      } catch (e) {
+        S.error = e.message;
+        S.view = "login";
+      }
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
