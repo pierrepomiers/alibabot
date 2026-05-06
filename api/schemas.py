@@ -108,6 +108,8 @@ class CatalogPage(BaseModel):
     limit: int
     offset: int
     snapshot_id: str | None = None
+    sort: str | None = None
+    direction: str | None = None
 
 
 class FacetCount(BaseModel):

@@ -8,6 +8,15 @@ from typing import Any
 from alibabot.storage import SupabaseStorage
 
 
+ALLOWED_SORTS = {
+    "name": "name",
+    "price": "price_eur",
+    "brand": "brand",
+    "in_stock": "in_stock",
+    "recent": "scraped_at",
+}
+
+
 class CatalogService:
     def __init__(self, storage: SupabaseStorage | None = None):
         self.storage = storage or SupabaseStorage()
@@ -50,16 +59,24 @@ class CatalogService:
         q: str | None = None,
         min_price: Decimal | None = None,
         max_price: Decimal | None = None,
+        sort: str = "name",
+        direction: str = "asc",
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
         snap_uuid = self.get_active_snapshot_uuid()
         if not snap_uuid:
-            return {"items": [], "total": 0, "limit": limit, "offset": offset, "snapshot_id": None}
+            return {
+                "items": [], "total": 0, "limit": limit, "offset": offset,
+                "snapshot_id": None, "sort": sort, "direction": direction,
+            }
 
         query = self.client.table("catalog_items").select("*", count="exact").eq("snapshot_id", snap_uuid)
         query = self._apply_filters(query, supplier, category, subcategory, brand, in_stock, q, min_price, max_price)
-        query = query.order("name", desc=False).range(offset, offset + limit - 1)
+
+        sort_col = ALLOWED_SORTS.get(sort, "name")
+        desc = direction == "desc"
+        query = query.order(sort_col, desc=desc).range(offset, offset + limit - 1)
         result = query.execute()
 
         return {
@@ -68,6 +85,8 @@ class CatalogService:
             "limit": limit,
             "offset": offset,
             "snapshot_id": self.get_active_snapshot_label(),
+            "sort": sort,
+            "direction": direction,
         }
 
     def get_facets(

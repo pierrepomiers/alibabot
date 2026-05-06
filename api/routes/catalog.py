@@ -21,6 +21,8 @@ async def list_active_items(
     q: str | None = Query(default=None, description="Recherche texte sur le nom"),
     min_price: Decimal | None = Query(default=None, ge=0),
     max_price: Decimal | None = Query(default=None, ge=0),
+    sort: str = Query(default="name", regex="^(name|price|brand|in_stock|recent)$"),
+    direction: str = Query(default="asc", regex="^(asc|desc)$"),
     limit: int = Query(default=50, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
 ):
@@ -34,6 +36,8 @@ async def list_active_items(
         q=q,
         min_price=min_price,
         max_price=max_price,
+        sort=sort,
+        direction=direction,
         limit=limit,
         offset=offset,
     )
