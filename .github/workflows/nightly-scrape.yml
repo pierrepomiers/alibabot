@@ -1,9 +1,9 @@
-name: Monthly catalog scrape
+name: Weekly catalog scrape
 
 on:
   schedule:
-    # 1er de chaque mois à 03:00 UTC (~04:00 / 05:00 Paris selon heure d'été)
-    - cron: '0 3 1 * *'
+    # Chaque lundi à 02:00 UTC (~03:00 / 04:00 Paris selon l'heure d'été)
+    - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
       reason:
