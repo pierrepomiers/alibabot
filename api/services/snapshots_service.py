@@ -85,6 +85,34 @@ class SnapshotsService:
         )
         return self._enrich(result.data[0]) if result.data else snap
 
+    def restore(self, snapshot_id: str, activated_by: str = "api") -> dict[str, Any]:
+        """Restaure un snapshot archivé comme actif. L'actuel actif passe en archived."""
+        snap = self.get_snapshot(snapshot_id)
+        if not snap:
+            raise ValueError(f"Snapshot not found: {snapshot_id}")
+        if snap["status"] != "archived":
+            raise ValueError(
+                f"Cannot restore snapshot in status '{snap['status']}' (only 'archived' allowed)"
+            )
+
+        now = datetime.now(timezone.utc).isoformat()
+
+        self.client.table("catalog_snapshots").update(
+            {"status": "archived"}
+        ).eq("status", "active").execute()
+
+        result = (
+            self.client.table("catalog_snapshots")
+            .update({
+                "status": "active",
+                "activated_at": now,
+                "activated_by": activated_by,
+            })
+            .eq("snapshot_id", snapshot_id)
+            .execute()
+        )
+        return self._enrich(result.data[0]) if result.data else snap
+
     def reject(self, snapshot_id: str, reason: str | None = None) -> dict[str, Any]:
         snap = self.get_snapshot(snapshot_id)
         if not snap:

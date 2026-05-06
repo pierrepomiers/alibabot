@@ -86,3 +86,15 @@ async def reject_snapshot(
         return svc.reject(snapshot_id, reason=reason)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{snapshot_id}/restore", response_model=SnapshotSummary)
+async def restore_snapshot(
+    snapshot_id: str,
+    activated_by: str = Query(default="api"),
+):
+    svc = SnapshotsService()
+    try:
+        return svc.restore(snapshot_id, activated_by=activated_by)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
