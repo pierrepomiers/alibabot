@@ -68,12 +68,37 @@
 - [x] Compléter la config Deflow : ajout `range` (transport)
 - [x] Confirmer absence de collection transport chez Viral (acceptable, redondance avec FCS auto-accessories et Surf Lounge accessoires-auto-rack-velo)
 
-## 🎨 Phase 3 — Frontend + Odoo (futur)
+## ✅ Phase 3A — Done
 
-- [ ] Page statique GitHub Pages
-- [ ] Filtres : fournisseur, marque, catégorie, prix, dispo
-- [ ] Endpoint `/odoo/orders/{id}/lines` (réutilise XML-RPC de garybot-api)
-- [ ] Diff viewer avant acceptation snapshot
+- [x] Frontend monolithe `frontend/index.html` avec login Supabase
+- [x] Vue snapshots (liste + filtre par status)
+- [x] Vue diff avec sections add/remove/price/stock
+- [x] Boutons accept/reject
+
+## 🚧 Phase 3A — À faire côté utilisateur
+
+- [ ] Créer un utilisateur dans Supabase Auth (Dashboard → Authentication → Users → Add user)
+- [ ] Récupérer la clé `anon public` (Settings → API)
+- [ ] Remplacer `<ANON_KEY_HERE>` dans `frontend/index.html`
+- [ ] Configurer GitHub Pages : Settings → Pages → Branch `main` / Folder `/frontend`
+- [ ] Ouvrir l'URL et tester le flow complet (login → liste → diff → accept)
+
+## 📦 Phase 3B — À venir
+
+- [ ] Vue catalogue avec filtres facettés
+- [ ] Recherche texte
+- [ ] Pagination
+- [ ] Cartes produits avec photo
+
+## 📦 Phase 3C — À venir
+
+- [ ] Endpoint `GET /orders/draft` dans garybot-api
+- [ ] Endpoint `POST /orders/{id}/lines` dans garybot-api
+
+## 📦 Phase 3D — À venir
+
+- [ ] Modal "ajouter au devis" sur les cartes produits
+- [ ] Toast de confirmation
 - [ ] Branding : intégrer le visuel "Ali Baba au fez" (favicon, header)
 
 ## 🐛 Bugs / observations

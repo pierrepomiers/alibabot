@@ -121,6 +121,29 @@ cat snapshots/<timestamp>.json | jq '.items[0]'
 cat snapshots/<timestamp>.json | jq '.errors[:5]'
 ```
 
+## 7bis. Frontend (Phase 3A)
+
+Localisation : `frontend/`. Vanilla JS monolithe, pas de build.
+
+### Auth
+
+Supabase email/pass. Le client utilise la clé `anon public` (jamais la `service_role`). RLS protège la DB côté backend ; le frontend appelle l'API alibabot avec le JWT du user en `Authorization: Bearer ...` plus le `x-api-secret`.
+
+### Vues actuelles
+
+- `S.view = "login"` : formulaire email/pass
+- `S.view = "snapshots"` : liste des snapshots
+- `S.view = "diff"` : diff détaillé + accept/reject
+
+### Vues à venir
+
+- Phase 3B : `S.view = "catalog"` (consultation produits avec filtres)
+- Phase 3D : modal "ajouter au devis Odoo"
+
+### URL de la page
+
+GitHub Pages : `https://pierrepomiers.github.io/alibabot/frontend/` (à confirmer après config).
+
 ## 8. Suivi des tâches
 
 `todo-items.md` à la racine du repo. À mettre à jour à chaque session de travail.
