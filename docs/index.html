@@ -594,6 +594,59 @@
       grid-column: 1 / -1;
     }
 
+    /* Variant badges on product cards */
+    .variants-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin: 0.4rem 0;
+    }
+    .color-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: inline-block;
+      flex-shrink: 0;
+      cursor: help;
+    }
+    .color-more {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+    .size-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .size-pill {
+      font-size: 11px;
+      padding: 1px 6px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: help;
+    }
+    .size-pill.size-more {
+      background: transparent;
+      border: none;
+      cursor: default;
+    }
+
+    /* Color dot inside a sidebar facet item */
+    .facet-color-dot {
+      cursor: pointer;
+    }
+
     @media (max-width: 768px) {
       .catalog-layout { grid-template-columns: 1fr; }
       .facets {
@@ -625,6 +678,64 @@
       apiSecret: "alibabot2026",
     };
 
+    // ─── Color mapping (canonical TitleCase from normalizers/values.py) ───
+    const COLOR_HEX = {
+      "Black": "#0f0f0f",
+      "White": "#ffffff",
+      "Grey": "#7a7a7a",
+      "Gray": "#7a7a7a",
+      "Silver": "#c0c0c0",
+      "Gold": "#d4af37",
+      "Blue": "#1e7fc8",
+      "Red": "#d63131",
+      "Green": "#3aa647",
+      "Yellow": "#f5d520",
+      "Orange": "#f08a1c",
+      "Purple": "#7a4fb8",
+      "Pink": "#e873a0",
+      "Brown": "#7a4f2d",
+      "Cherry": "#a8262f",
+      "Burgundy": "#6e1b27",
+      "Mint": "#9be3c4",
+      "Mustard": "#d4a020",
+      "Avocado": "#7a8c3f",
+      "Acid Lemon": "#d8e826",
+      "Acid": "#d8e826",
+      "Granite": "#5a5d62",
+      "Coral": "#e8806a",
+      "Olive": "#6b7340",
+      "Navy": "#1c2845",
+      "Teal": "#2d8589",
+      "Khaki": "#bda56b",
+      "Beige": "#d8c8a4",
+      "Sand": "#d4c294",
+      "Sage": "#a8b89a",
+      "Smoke": "#5e636b",
+      "Clear": "#e8e8e8",
+      "Cream": "#f0e8d4",
+      "Tranquil Blue": "#7eb6d4",
+      "Steel Grey": "#5e6878",
+      "Warm Grey": "#9e8e7e",
+      "Mango": "#f0a830",
+      "Alpine": "#bcd2e0",
+      "Pacific Blue": "#2a6b9e",
+      "Light Blue": "#b8d4e8",
+      "Dark Blue": "#1a3458",
+      "Rainbow": "linear-gradient(90deg, #ff0000, #ff8800, #ffee00, #00cc00, #0088ff, #8800cc)",
+      "Fluo": "#cdfa1d",
+      "Neon": "#cdfa1d",
+    };
+
+    function getColorStyle(colorName) {
+      if (!colorName) return { background: "#999" };
+      // Composed color names ("Black / Grey", "Black White") → take the first token
+      const firstColor = colorName.split(/[\/&]/)[0].trim();
+      const hex = COLOR_HEX[colorName] || COLOR_HEX[firstColor];
+      if (!hex) return { background: "#999" };
+      if (hex.startsWith("linear-gradient")) return { background: hex };
+      return { background: hex };
+    }
+
     // ─── State ───────────────────────────────────────────────────────
     const S = {
       view: "loading",       // "loading" | "login" | "snapshots" | "diff" | "catalog"
@@ -642,6 +753,8 @@
         loading: false,
         facets: null,
         showAllBrands: false,
+        showAllColors: false,
+        showAllSizes: false,
         filters: {
           supplier: null,
           category: null,
@@ -650,6 +763,8 @@
           q: "",
           min_price: null,
           max_price: null,
+          color: null,
+          size: null,
         },
         sort: "name",
         direction: "asc",
@@ -870,6 +985,7 @@
       S.catalog.filters = {
         supplier: null, category: null, brand: null, in_stock: null,
         q: "", min_price: null, max_price: null,
+        color: null, size: null,
       };
       S.catalog.sort = "name";
       S.catalog.direction = "asc";
@@ -1154,13 +1270,17 @@
 
       const supplierBlock = renderFacetGroup("Fournisseur", "supplier", facets.suppliers, f.supplier, false);
       const categoryBlock = renderFacetGroup("Catégorie", "category", facets.categories, f.category, false);
-      const brandBlock = renderFacetGroup("Marque", "brand", facets.brands, f.brand, true);
+      const brandBlock = renderFacetGroup("Marque", "brand", facets.brands, f.brand, true, 10);
+      const colorBlock = renderColorFacetGroup(facets.colors || [], f.color);
+      const sizeBlock = renderFacetGroup("Tailles", "size", facets.sizes || [], f.size, true, 8);
 
       return `
         <aside class="facets">
           ${supplierBlock}
           ${categoryBlock}
           ${brandBlock}
+          ${colorBlock}
+          ${sizeBlock}
 
           <h3>Prix (€)</h3>
           <div class="price-range">
@@ -1179,10 +1299,17 @@
       `;
     }
 
-    function renderFacetGroup(title, key, options, currentValue, withShowAll) {
+    function _showAllStateKey(key) {
+      // brand → showAllBrands, color → showAllColors, size → showAllSizes
+      return "showAll" + key.charAt(0).toUpperCase() + key.slice(1) + "s";
+    }
+
+    function renderFacetGroup(title, key, options, currentValue, withShowAll, limit = 10) {
       options = options || [];
-      const showAll = key === "brand" && S.catalog.showAllBrands;
-      const visible = withShowAll && !showAll ? options.slice(0, 10) : options;
+      if (options.length === 0) return "";
+      const stateKey = _showAllStateKey(key);
+      const showAll = withShowAll && !!S.catalog[stateKey];
+      const visible = withShowAll && !showAll ? options.slice(0, limit) : options;
       const items = visible.map((o) => `
         <label class="facet-item">
           <input type="radio" name="facet-${escapeHtml(key)}" data-facet="${escapeHtml(key)}" value="${escapeHtml(o.value)}" ${currentValue === o.value ? "checked" : ""}>
@@ -1198,11 +1325,45 @@
         </label>
       `;
 
-      const showMoreBtn = withShowAll && options.length > 10
-        ? `<button class="show-more" id="btn-toggle-brands">${showAll ? "Voir moins" : `Voir toutes (${options.length})`}</button>`
+      const showMoreBtn = withShowAll && options.length > limit
+        ? `<button class="show-more" data-toggle-facet="${escapeHtml(key)}">${showAll ? "Voir moins" : `Voir toutes (${options.length})`}</button>`
         : "";
 
       return `<h3>${title}</h3>${allItem}${items}${showMoreBtn}`;
+    }
+
+    function renderColorFacetGroup(options, currentValue) {
+      if (!options || options.length === 0) return "";
+      const limit = 8;
+      const stateKey = _showAllStateKey("color");
+      const showAll = !!S.catalog[stateKey];
+      const visible = showAll ? options : options.slice(0, limit);
+
+      const allItem = `
+        <label class="facet-item">
+          <input type="radio" name="facet-color" data-facet="color" value="" ${currentValue == null ? "checked" : ""}>
+          <span class="label">Tous</span>
+        </label>
+      `;
+
+      const items = visible.map((o) => {
+        const style = getColorStyle(o.value);
+        const styleStr = Object.entries(style).map(([k, v]) => `${k}:${v}`).join(";");
+        return `
+          <label class="facet-item">
+            <input type="radio" name="facet-color" data-facet="color" value="${escapeHtml(o.value)}" ${currentValue === o.value ? "checked" : ""}>
+            <span class="color-dot facet-color-dot" style="${styleStr}"></span>
+            <span class="label">${escapeHtml(o.value)}</span>
+            <span class="count">${o.count}</span>
+          </label>
+        `;
+      }).join("");
+
+      const showMoreBtn = options.length > limit
+        ? `<button class="show-more" data-toggle-facet="color">${showAll ? "Voir moins" : `Voir toutes (${options.length})`}</button>`
+        : "";
+
+      return `<h3>Couleurs</h3>${allItem}${items}${showMoreBtn}`;
     }
 
     function renderCatalogToolbar() {
@@ -1243,6 +1404,48 @@
       return `<div class="product-grid">${c.items.map(renderProductCard).join("")}</div>`;
     }
 
+    function getDisplayVariants(item) {
+      // Returns {colors, sizes} from inferred_options + available variants only.
+      const colors = new Set();
+      const sizes = new Set();
+
+      const inf = item.inferred_options || {};
+      if (inf.color) colors.add(inf.color);
+      if (inf.size) sizes.add(inf.size);
+
+      for (const v of (item.variants || [])) {
+        if (!v.available) continue;
+        const opts = v.normalized_options || {};
+        if (opts.color) colors.add(opts.color);
+        if (opts.size) sizes.add(opts.size);
+      }
+      return { colors: Array.from(colors), sizes: Array.from(sizes) };
+    }
+
+    function renderVariantsBadges(item) {
+      const { colors, sizes } = getDisplayVariants(item);
+      if (colors.length === 0 && sizes.length === 0) return "";
+
+      const colorPills = colors.slice(0, 6).map((c) => {
+        const style = getColorStyle(c);
+        const styleStr = Object.entries(style).map(([k, v]) => `${k}:${v}`).join(";");
+        return `<span class="color-dot" style="${styleStr}" title="${escapeHtml(c)}"></span>`;
+      }).join("");
+      const colorOverflow = colors.length > 6 ? `<span class="color-more">+${colors.length - 6}</span>` : "";
+
+      const sizePills = sizes.slice(0, 8).map((s) =>
+        `<span class="size-pill" title="Taille ${escapeHtml(s)}">${escapeHtml(s)}</span>`
+      ).join("");
+      const sizeOverflow = sizes.length > 8 ? `<span class="size-pill size-more">+${sizes.length - 8}</span>` : "";
+
+      return `
+        <div class="variants-row">
+          ${colors.length > 0 ? `<div class="color-row">${colorPills}${colorOverflow}</div>` : ""}
+          ${sizes.length > 0 ? `<div class="size-row">${sizePills}${sizeOverflow}</div>` : ""}
+        </div>
+      `;
+    }
+
     function renderProductCard(it) {
       const img = it.image_url
         ? `<img src="${escapeHtml(it.image_url)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<span class=\\'no-img\\'>Pas de photo</span>'">`
@@ -1257,6 +1460,7 @@
           <div class="product-photo">${img}${oos}</div>
           <div class="product-brand">${escapeHtml(it.brand || "—")}</div>
           <div class="product-name" title="${escapeHtml(it.name || "")}">${escapeHtml(it.name || "")}</div>
+          ${renderVariantsBadges(it)}
           <div class="product-bottom">
             <span class="product-price">${price}</span>
             <span class="product-supplier">${escapeHtml(it.supplier || "")}</span>
@@ -1389,10 +1593,14 @@
       // Catalog: reset
       document.getElementById("btn-reset-filters")?.addEventListener("click", resetCatalogFilters);
 
-      // Catalog: brand show-all toggle
-      document.getElementById("btn-toggle-brands")?.addEventListener("click", () => {
-        S.catalog.showAllBrands = !S.catalog.showAllBrands;
-        render();
+      // Catalog: facet "show all" toggle (brand, color, size)
+      document.querySelectorAll("[data-toggle-facet]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const key = el.dataset.toggleFacet;
+          const stateKey = "showAll" + key.charAt(0).toUpperCase() + key.slice(1) + "s";
+          S.catalog[stateKey] = !S.catalog[stateKey];
+          render();
+        });
       });
 
       // Catalog: search (debounced 300ms)
