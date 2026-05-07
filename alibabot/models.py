@@ -12,6 +12,7 @@ class CatalogVariant(BaseModel):
     price_eur: Optional[Decimal] = None
     available: bool = True
     options: dict[str, str] = Field(default_factory=dict)
+    normalized_options: dict[str, str] = Field(default_factory=dict)
 
 
 class CatalogItem(BaseModel):
@@ -46,6 +47,9 @@ class CatalogItem(BaseModel):
     # Tags / attributs bruts
     tags: list[str] = Field(default_factory=list)
     raw: dict = Field(default_factory=dict)
+
+    # Options inférées depuis le nom (utile pour Viral, qui n'a pas de variants structurés)
+    inferred_options: dict[str, str] = Field(default_factory=dict)
 
     # Métadonnées scraping
     scraped_at: datetime = Field(default_factory=datetime.utcnow)
