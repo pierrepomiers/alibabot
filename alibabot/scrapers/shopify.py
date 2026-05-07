@@ -2,7 +2,7 @@ import httpx
 from decimal import Decimal
 from datetime import datetime
 from alibabot.models import CatalogItem, CatalogVariant
-from alibabot.normalizers.core import normalize_options
+from alibabot.normalizers.core import normalize_options, extract_from_name
 from alibabot.scrapers.base import BaseScraper
 from alibabot.utils.http import fetch
 
@@ -98,10 +98,13 @@ class ShopifyScraper(BaseScraper):
         tags_raw = p.get("tags", [])
         tags = tags_raw if isinstance(tags_raw, list) else [t.strip() for t in (tags_raw or "").split(",") if t.strip()]
 
+        title = p.get("title", "")
+        inferred = extract_from_name(self.supplier_id, title)
+
         return CatalogItem(
             supplier=self.supplier_id,
             supplier_ref=str(p["id"]),
-            name=p.get("title", ""),
+            name=title,
             brand=brand,
             category=category,
             subcategory=subcategory,
@@ -114,5 +117,6 @@ class ShopifyScraper(BaseScraper):
             image_url=image_url,
             variants=variants,
             tags=tags,
+            inferred_options=inferred,
             raw={"handle": handle, "id": p["id"]},
         )
