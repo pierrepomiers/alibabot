@@ -162,14 +162,28 @@ Supabase email/pass. Le client utilise la clé `anon public` (jamais la `service
 
 Onglet "Catalogue" en plus de "Validation" dans le header. `S.view` peut être `"snapshots" | "diff" | "catalog"`.
 
-Sidebar gauche (250px, sticky) : facettes (fournisseur, catégorie, marque), inputs prix min/max, checkbox "en stock uniquement", bouton "Réinitialiser les filtres".
+Sidebar gauche (250px, sticky) : facettes (fournisseur, catégorie, marque, **couleurs**, **tailles**), inputs prix min/max, checkbox "en stock uniquement", bouton "Réinitialiser les filtres".
 
 Zone centrale : barre de recherche (debounce 300ms), dropdown de tri, grille de cartes responsive (`auto-fill, minmax(200px, 1fr)`), scroll infini via `IntersectionObserver` sur `#catalog-sentinel`.
 
-Filtres backend supportés : `supplier`, `category`, `subcategory`, `brand`, `in_stock`, `q`, `min_price`, `max_price`.
+Filtres backend supportés : `supplier`, `category`, `subcategory`, `brand`, `in_stock`, `q`, `min_price`, `max_price`, `color`, `size`.
 Tri : `sort=name|price|brand|in_stock|recent` + `direction=asc|desc` (cf. `ALLOWED_SORTS` dans `api/services/catalog_service.py`).
 
-Facettes pour Phase 3B = **globales** (sur tout le snapshot, non cross-filtrées). L'amélioration "cross-filter facets" (compteurs intelligents qui ignorent le filtre courant) est reportée plus tard si besoin.
+Facettes pour Phase 3B = **globales** (sur tout le snapshot avec filtres autres que color/size appliqués). Les facettes color/size acceptent `?color=…&size=…` pour symétrie API mais ne sont **pas** appliquées au calcul des compteurs (pour pouvoir basculer d'une couleur à l'autre sans que la sélection courante n'aspire les compteurs). L'amélioration "cross-filter facets" complète est reportée plus tard si besoin.
+
+### Phase 3B++.3 : Variantes UI
+
+**Affichage** : pastilles couleur (avec tooltip) + pills tailles sur chaque carte produit.
+- Seules les variantes `available: true` sont affichées
+- Mapping nom de couleur → hex dans `COLOR_HEX` (frontend uniquement)
+- Couleurs composées (ex: `Black / Grey`) : on prend la première pour la pastille (`split(/[\/&]/)[0]`)
+- Source des couleurs/tailles : `CatalogItem.inferred_options` (Viral, Deflow item-level) **ou** `CatalogVariant.normalized_options` quand `available=true` (FCS, Surf Lounge)
+
+**Filtres sidebar** : sections "Couleurs" (avec pastille) et "Tailles" (limite 8, "Voir toutes" sinon).
+- API : `/catalog/active?color=Black&size=M`
+- `/catalog/active/facets` retourne `colors[]` et `sizes[]` (top 50 chacun)
+
+**Limite connue** : le filtre `color`/`size` côté API ne match que `inferred_options` (Viral + Deflow). Les items FCS / Surf Lounge dont la couleur ne vit que dans `variants[].normalized_options` ne sont pas matchés par le filtre — ils restent navigables via les autres filtres (marque, catégorie). Cross-filter complet à reprendre Phase 3+ si besoin.
 
 ### URL de la page
 

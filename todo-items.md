@@ -92,6 +92,22 @@
 - [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
 - [x] Frontend : scroll infini via IntersectionObserver
 
+## ✅ Phase 3B++.3 — Done (variantes UI + filtres)
+
+- [x] API : params `color` + `size` sur `/catalog/active`
+- [x] API : compteurs `colors[]` + `sizes[]` dans `/catalog/active/facets`
+- [x] Schémas API : `inferred_options` exposé sur `CatalogItemOut`, `normalized_options` sur `CatalogVariantOut`
+- [x] Frontend : pastilles couleur + pills tailles sur chaque carte produit (seulement les variantes `available`)
+- [x] Frontend : filtres sidebar Couleurs (avec pastille) + Tailles
+- [x] Frontend : `Réinitialiser` reset aussi color/size
+
+## 📦 Phase 3+ — Améliorations futures
+
+- [ ] Filtres `color`/`size` couvrant aussi `variants[].normalized_options` (FCS, Surf Lounge) via JSONB containment
+- [ ] Cross-filter facets complets (compteurs intelligents qui ignorent le filtre courant)
+- [ ] Phase 3C : endpoints garybot-api pour Odoo
+- [ ] Migrer `regex=` → `pattern=` sur les `Query(...)` (`api/routes/catalog.py`, `api/routes/snapshots.py`) pour éviter le DeprecationWarning FastAPI
+
 ## ✅ Phase 3B++.1 bis — Done (patch normalisation)
 
 - [x] Module `alibabot/normalizers/values.py` (canonicalisation couleurs + tailles)
