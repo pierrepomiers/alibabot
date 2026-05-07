@@ -80,6 +80,7 @@ class CatalogVariantOut(BaseModel):
     price_eur: Decimal | None = None
     available: bool = True
     options: dict[str, str] = Field(default_factory=dict)
+    normalized_options: dict[str, str] = Field(default_factory=dict)
 
 
 class CatalogItemOut(BaseModel):
@@ -100,6 +101,7 @@ class CatalogItemOut(BaseModel):
     image_url: str | None = None
     variants: list[CatalogVariantOut] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
+    inferred_options: dict[str, str] = Field(default_factory=dict)
 
 
 class CatalogPage(BaseModel):
@@ -122,5 +124,7 @@ class CatalogFacets(BaseModel):
     brands: list[FacetCount]
     categories: list[FacetCount]
     subcategories: list[FacetCount]
+    colors: list[FacetCount] = Field(default_factory=list)
+    sizes: list[FacetCount] = Field(default_factory=list)
     total: int
     snapshot_id: str | None = None
