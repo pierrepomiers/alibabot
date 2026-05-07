@@ -105,7 +105,24 @@ Pour ajouter une nouvelle plateforme : créer un nouveau scraper dans `alibabot/
 - **Pas de scraping authentifié** : prix publics uniquement
 - **Pas de Playwright** en Phase 1
 
-## 6bis. Variables d'environnement
+## 6bis. Normalisation des variantes (Phase 3B++.1)
+
+Module `alibabot/normalizers/` qui standardise `size` et `color` à partir de :
+- Pour les Shopify (FCS, Surf Lounge, Deflow) : mapping des clés `Size/Colour/TAILLE/COULEUR` → `size/color`
+- Pour Viral (pas de variantes structurées) : extraction depuis le nom du produit (whitelist couleurs + regex tailles)
+
+Le résultat est stocké dans :
+- `CatalogVariant.normalized_options` (Shopify, à l'intérieur du JSONB `variants`)
+- `CatalogItem.inferred_options` (Viral, nouvelle colonne JSONB sur `catalog_items`)
+
+Limitations connues :
+- Couverture Viral ~70-80% (best-effort, regex fragiles)
+- Pas de normalisation des **valeurs** ("MED" et "MEDIUM" restent distincts)
+- Les dimensions (`200 x 50 cm`) sont stockées brutes en `size`
+
+Pour mesurer la qualité : `alibabot validate-normalizer snapshots/<file>.json`
+
+## 6ter. Variables d'environnement
 
 | Var | Où | Rôle |
 |---|---|---|

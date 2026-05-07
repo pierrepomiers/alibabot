@@ -92,6 +92,31 @@
 - [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
 - [x] Frontend : scroll infini via IntersectionObserver
 
+## ✅ Phase 3B++.1 — Done (normalisation backend)
+
+- [x] Module `alibabot/normalizers/` (core, shopify_options, viral_name)
+- [x] Champs `normalized_options` (variants) et `inferred_options` (items) dans les modèles
+- [x] Intégration dans les scrapers Shopify et PrestaShop
+- [x] Schéma Supabase mis à jour (ALTER TABLE + 2 indexes)
+- [x] CLI `alibabot validate-normalizer`
+
+## 🚧 Phase 3B++.1 — À faire côté utilisateur
+
+- [ ] Exécuter le SQL ALTER TABLE dans Supabase (cf. fin de `db/schema.sql`)
+- [ ] Re-scraper en local : `alibabot scrape`
+- [ ] Inspecter avec : `alibabot validate-normalizer snapshots/<dernier>.json`
+- [ ] Si couverture Viral acceptable : `alibabot push-snapshot snapshots/<dernier>.json`
+- [ ] Sinon : ajuster `alibabot/normalizers/viral_name.py` et re-tester
+
+## 📦 Phase 3B++.2 — À venir
+
+- [ ] Re-scrape de validation + accept du snapshot avec variantes normalisées
+
+## 📦 Phase 3B++.3 — À venir
+
+- [ ] Frontend : pastilles couleurs + pills tailles sur les cartes produits
+- [ ] (Phase 3+ wishlist) Filtres facettés sur size et color dans la sidebar
+
 ## ✅ Phase 3B+ — Done (consolidation)
 
 - [x] Cron hebdomadaire (lundi 2h UTC) au lieu de mensuel
