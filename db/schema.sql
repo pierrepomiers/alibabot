@@ -104,3 +104,15 @@ alter table catalog_snapshots enable row level security;
 alter table catalog_items enable row level security;
 
 -- (Pas de policies = aucune ligne accessible par défaut, sauf service_role)
+
+-- ─── Phase 3B++.1 — Variants normalization ─────────────────────────
+-- Nouvelle colonne JSONB pour les options inférées depuis le nom (Viral).
+-- Les variantes Shopify reçoivent leur normalized_options stocké à
+-- l'intérieur du JSONB existant `variants`, sans changement de schéma.
+alter table catalog_items
+    add column if not exists inferred_options jsonb default '{}'::jsonb;
+
+create index if not exists idx_items_inferred_size
+    on catalog_items ((inferred_options->>'size'));
+create index if not exists idx_items_inferred_color
+    on catalog_items ((inferred_options->>'color'));
