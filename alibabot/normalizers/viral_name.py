@@ -1,19 +1,25 @@
-"""Extract {size, color} from Viral PrestaShop product names.
+"""Extract {size, color} from a product name.
 
-Viral does not expose structured variants — the info is in the name.
+Used for:
+- Viral PrestaShop (no structured variants — info is in the name).
+- Deflow Shopify (each color sold as a separate product, info is in the name).
+
 Patterns observed (sample):
 - "Dérives Thruster - Eric Arakawa - Large - fiberglass black / grey, FUTURES."
 - "Leash surf Premium - Regular Knee 9'0'' x 7mm - Noir, JUST"
 - "Pad surf - Rouleau - 200 x 50 cm - Noir, JUST"
 - "Longboard sock cover 9'2'' - Housse de surf, JUST"
+- "V.2 Granite", "Rocket Cherry"  (Deflow)
 """
 from __future__ import annotations
 
 import re
 
+from alibabot.normalizers.values import canonicalize_color, normalize_size_value
+
 
 # Couleurs reconnues, triées par longueur décroissante pour matcher
-# les composées avant les simples ("Black White" avant "Black")
+# les composées avant les simples ("Black White" avant "Black", "Acid Lemon" avant "Acid")
 KNOWN_COLORS_RAW = [
     # Composés FR/EN courants
     "Black White", "Black & White", "Black / White", "Black/grey", "Black / grey",
@@ -25,6 +31,13 @@ KNOWN_COLORS_RAW = [
     "Black", "White", "Blue", "Red", "Yellow", "Green", "Grey", "Gray",
     "Cream", "Smoke", "Clear", "Pink", "Purple", "Brown", "Orange",
     "Silver", "Gold",
+    # Couleurs spécifiques Deflow / signature shapers
+    "Granite", "Burgundy", "Cherry", "Mint", "Mustard", "Avocado",
+    "Coral", "Olive", "Navy", "Teal", "Khaki", "Beige", "Sand", "Sage",
+    "Acid Lemon", "Acid",
+    # Couleurs surf classiques
+    "Tranquil Blue", "Steel Grey", "Warm Grey", "Mango", "Alpine",
+    "Pacific Blue", "Light Blue", "Dark Blue",
     # Modificateurs courants
     "Rainbow", "Fluo", "Neon",
 ]
@@ -76,9 +89,10 @@ def _extract_size(name: str) -> str | None:
 
 
 def extract_viral_variant(name: str) -> dict[str, str]:
-    """Extract {size?, color?} from a Viral product name.
+    """Extract {size?, color?} from a product name (Viral and Deflow).
 
     Returns a possibly-empty dict. Coverage is best-effort (~70-80%).
+    Values are canonicalized (Noir → Black, MEDIUM → Medium, etc.).
     """
     if not name:
         return {}
@@ -88,8 +102,8 @@ def extract_viral_variant(name: str) -> dict[str, str]:
     out: dict[str, str] = {}
     color = _extract_color(body)
     if color:
-        out["color"] = color
+        out["color"] = canonicalize_color(color)
     size = _extract_size(body)
     if size:
-        out["size"] = size
+        out["size"] = normalize_size_value(size)
     return out
