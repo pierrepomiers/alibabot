@@ -2,6 +2,7 @@ import httpx
 from decimal import Decimal
 from datetime import datetime
 from alibabot.models import CatalogItem, CatalogVariant
+from alibabot.normalizers.core import normalize_options
 from alibabot.scrapers.base import BaseScraper
 from alibabot.utils.http import fetch
 
@@ -84,6 +85,7 @@ class ShopifyScraper(BaseScraper):
                 price_eur=price,
                 available=available,
                 options=options,
+                normalized_options=normalize_options(self.supplier_id, options),
             ))
 
         image_url = None

@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 import httpx
 from selectolax.parser import HTMLParser
 from alibabot.models import CatalogItem
+from alibabot.normalizers.core import extract_from_name
 from alibabot.scrapers.base import BaseScraper
 from alibabot.utils.http import fetch
 
@@ -153,6 +154,8 @@ class PrestashopScraper(BaseScraper):
 
         detected_brand = extract_brand_from_name(name) or self.config.default_brand
 
+        inferred = extract_from_name(self.supplier_id, name)
+
         return CatalogItem(
             supplier=self.supplier_id,
             supplier_ref=supplier_ref,
@@ -166,5 +169,6 @@ class PrestashopScraper(BaseScraper):
             in_stock=in_stock,
             product_url=product_url,
             image_url=image_url,
+            inferred_options=inferred,
             raw={"path": product_url},
         )
