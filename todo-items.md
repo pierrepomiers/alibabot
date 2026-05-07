@@ -92,6 +92,24 @@
 - [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
 - [x] Frontend : scroll infini via IntersectionObserver
 
+## ✅ Phase 3B++.1 bis — Done (patch normalisation)
+
+- [x] Module `alibabot/normalizers/values.py` (canonicalisation couleurs + tailles)
+- [x] FR→EN sur les couleurs (Noir→Black, Bleu→Blue, etc.)
+- [x] Title Case canonique (BLACK SILVER → Black Silver)
+- [x] `couleurs` (pluriel) ajouté à COLOR_KEYS pour Surf Lounge
+- [x] Extraction depuis nom étendue à Deflow (Shopify scraper appelle aussi `extract_from_name`)
+- [x] Whitelist couleurs enrichie (Granite, Burgundy, Cherry, Mint, Acid Lemon, etc.)
+
+## 🚧 Phase 3B++.1 bis — À faire côté utilisateur
+
+- [ ] `alibabot scrape` (re-scrape complet)
+- [ ] `alibabot validate-normalizer snapshots/<dernier>.json` — vérifier que :
+  - Deflow Color % > 30 % (avant : 0 %)
+  - Surf Lounge Color en TitleCase (`Black Silver` au lieu de `BLACK SILVER`)
+  - Viral `Noir` et `Black` sont fusionnés en `Black`
+- [ ] Si OK : `alibabot push-snapshot snapshots/<dernier>.json`
+
 ## ✅ Phase 3B++.1 — Done (normalisation backend)
 
 - [x] Module `alibabot/normalizers/` (core, shopify_options, viral_name)
