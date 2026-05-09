@@ -171,6 +171,26 @@ Tri : `sort=name|price|brand|in_stock|recent` + `direction=asc|desc` (cf. `ALLOW
 
 Facettes pour Phase 3B = **globales** (sur tout le snapshot avec filtres autres que color/size appliqués). Les facettes color/size acceptent `?color=…&size=…` pour symétrie API mais ne sont **pas** appliquées au calcul des compteurs (pour pouvoir basculer d'une couleur à l'autre sans que la sélection courante n'aspire les compteurs). L'amélioration "cross-filter facets" complète est reportée plus tard si besoin.
 
+### Phase 3D : Bouton "Ajouter au devis"
+
+Sur les cartes du catalogue, un bouton "+ Ajouter au devis" est rendu mais reste invisible (`opacity: 0`) tant que la souris n'est pas sur la `.product-card` (`:hover` ou `:focus-within`). Il n'apparaît que pour les items qui ont à la fois un `id` et un `price_eur`.
+
+Au clic : modal `S.modal` qui :
+- Affiche le produit (image, marque, nom, prix TTC, fournisseur)
+- Si `>1` couleur : sélecteur obligatoire (boutons pastille + nom)
+- Si `>1` taille : sélecteur obligatoire (boutons texte)
+- Auto-sélectionne la couleur/taille s'il n'y en a qu'une
+- Dropdown des 50 derniers `sale.order` draft (chargés via `garybot-api/orders/draft`, mis en cache `S.draftsLoaded` pour la session)
+- Pré-sélectionne le dernier devis utilisé (`S.lastSelectedOrderId`)
+
+Au submit : `POST garybot-api/orders/{id}/lines` (cf. Phase 3C garybot-api) qui crée 3 lignes Odoo (1 produit générique + 2 notes). Le bouton submit est désactivé pendant la requête pour éviter le double-clic.
+
+Toast de confirmation/erreur (`S.toast`) en bas de page (3 s auto, dismissible). Classe `.toast-bottom` distincte du `.toast` historique (top, erreur globale).
+
+URL et auth de garybot-api : `CONFIG.garybotApiUrl` + `CONFIG.apiSecret` (= `alibabot2026`). Le secret doit être présent dans `API_SECRETS` côté garybot-api Render.
+
+Note : le total du devis Odoo n'est pas recalculé immédiatement après création — Odoo le recalcule à l'ouverture du devis dans son UI (workflow normal puisque l'édition fine se fait dans Odoo, pas dans GaryBot).
+
 ### Phase 3B++.3 : Variantes UI
 
 **Affichage** : pastilles couleur (avec tooltip) + pills tailles sur chaque carte produit.

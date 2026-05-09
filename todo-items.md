@@ -92,6 +92,30 @@
 - [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
 - [x] Frontend : scroll infini via IntersectionObserver
 
+## ✅ Phase 3D — Done
+
+- [x] `CONFIG.garybotApiUrl` ajouté au frontend
+- [x] Bouton "+ Ajouter au devis" (visible au survol) sur les cartes du catalogue
+- [x] Modal d'ajout (produit + sélecteur variante + dropdown devis draft)
+- [x] Mémorisation du dernier devis sélectionné en session (`S.lastSelectedOrderId`)
+- [x] Submit → `POST garybot-api/orders/{id}/lines` → 3 lignes Odoo
+- [x] Toast de confirmation / erreur en bas de page (3 s auto)
+- [x] Bouton submit désactivé pendant la requête (anti double-clic)
+
+## 🎉 PROJET ALIBABOT — TERMINÉ
+
+L'écosystème complet :
+- Cron hebdomadaire (lundi 2 h UTC) → scrape 4 fournisseurs → ~1226 items normalisés
+- Supabase persistence + auto-purge (rejected/pending 7 j, archived 60 j)
+- API REST FastAPI sur Render (auth multi-secrets côté garybot-api, x-api-secret côté alibabot)
+- Frontend GitHub Pages : validation snapshots + catalogue avec variantes (pastilles couleur, pills taille, filtres facettés)
+- Intégration Odoo : ajout direct au devis depuis la carte produit
+
+Action restante côté utilisateur :
+- [ ] Sur Render `garybot-api` : env var `API_SECRETS=notox2026,alibabot2026` (+ conserver `API_SECRET=notox2026`)
+- [ ] Dans Odoo : 5 produits avec `default_code` `FINS`, `LEASH`, `PAD`, `BAG`, `DIVERS` (cf. `garybot-api/CLAUDE-backend.md` §12)
+- [ ] Tester end-to-end depuis https://pierrepomiers.github.io/alibabot/
+
 ## ✅ Phase 3B++.3 — Done (variantes UI + filtres)
 
 - [x] API : params `color` + `size` sur `/catalog/active`
