@@ -655,6 +655,226 @@
       }
     }
 
+    /* Phase 3D — Add to quote button (visible at hover) */
+    .add-to-quote-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s, transform 0.18s, background 0.15s;
+    }
+    .product-card:hover .add-to-quote-btn,
+    .product-card:focus-within .add-to-quote-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .add-to-quote-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Phase 3D — Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h2 { margin: 0; font-size: 1.1rem; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .modal-body {
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+    .modal-product {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-product-img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .modal-product-info { flex: 1; min-width: 0; }
+    .modal-product-brand {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .modal-product-name {
+      font-weight: 500;
+      margin: 0.2rem 0;
+      word-break: break-word;
+    }
+    .modal-product-price {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .modal-product-supplier {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+    .modal-field { margin-bottom: 1rem; }
+    .modal-field label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+    .modal-options {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .modal-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .modal-option:hover { border-color: var(--accent); }
+    .modal-option.modal-option-selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .modal-option.modal-option-selected .color-dot {
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    .modal-select {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .modal-empty {
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.55rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.55rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { border-color: var(--accent); }
+
+    /* Phase 3D — Bottom toast */
+    .toast-bottom {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 2000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      max-width: 90vw;
+      animation: toastSlideIn 0.25s ease-out;
+    }
+    @keyframes toastSlideIn {
+      from { transform: translate(-50%, 1rem); opacity: 0; }
+      to   { transform: translate(-50%, 0); opacity: 1; }
+    }
+    .toast-bottom.toast-success { border-left: 3px solid var(--success); }
+    .toast-bottom.toast-error   { border-left: 3px solid var(--danger); }
+    .toast-bottom.toast-info    { border-left: 3px solid var(--accent); }
+    .toast-bottom .toast-message { color: var(--text); font-size: 0.9rem; }
+    .toast-bottom .toast-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      font-size: 1rem;
+    }
+
     /* Mobile */
     @media (max-width: 600px) {
       .item-row {
@@ -676,6 +896,7 @@
       supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtbHhsandhYnFwaW9zdmhtbW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjIyNjMsImV4cCI6MjA5MzM5ODI2M30.SoKaKb1QFap9IC9fwqrzxojqERzqIHEqnURdKTY5M1M",
       apiUrl: "https://alibabot.onrender.com",
       apiSecret: "alibabot2026",
+      garybotApiUrl: "https://garybot-api.onrender.com",
     };
 
     // ─── Color mapping (canonical TitleCase from normalizers/values.py) ───
@@ -747,6 +968,7 @@
       diffFilters: { added: { supplier: "", q: "" }, removed: { supplier: "", q: "" }, price: { supplier: "", q: "" }, stock: { supplier: "", q: "" } },
       catalog: {
         items: [],
+        itemsById: {},
         total: 0,
         offset: 0,
         hasMore: true,
@@ -770,6 +992,11 @@
         direction: "asc",
         searchTimer: null,
       },
+      drafts: [],
+      draftsLoaded: false,
+      lastSelectedOrderId: null,
+      toast: null,
+      modal: null,
       loading: false,
       error: null,
     };
@@ -939,6 +1166,7 @@
       if (c.loading) return;
       if (reset) {
         c.items = [];
+        c.itemsById = {};
         c.offset = 0;
         c.hasMore = true;
       }
@@ -958,7 +1186,11 @@
 
       try {
         const data = await apiCall(`/catalog/active?${params}`);
-        c.items.push(...(data.items || []));
+        const newItems = data.items || [];
+        c.items.push(...newItems);
+        for (const it of newItems) {
+          if (it && it.id != null) c.itemsById[it.id] = it;
+        }
         c.total = data.total || 0;
         c.offset = c.items.length;
         c.hasMore = c.items.length < c.total;
@@ -1025,6 +1257,9 @@
         else inner = renderSnapshots();
         html += renderShell(inner);
       }
+
+      html += renderModal();
+      html += renderToast();
 
       root.innerHTML = html;
       attachHandlers();
@@ -1455,6 +1690,10 @@
       const link = it.product_url
         ? `<a class="product-link" href="${escapeHtml(it.product_url)}" target="_blank" rel="noopener">🔗 Voir produit</a>`
         : "";
+      const canAdd = it.id != null && it.price_eur != null;
+      const addBtn = canAdd
+        ? `<button class="add-to-quote-btn" data-add-to-quote="${escapeHtml(String(it.id))}">+ Ajouter au devis</button>`
+        : "";
       return `
         <div class="product-card">
           <div class="product-photo">${img}${oos}</div>
@@ -1466,6 +1705,7 @@
             <span class="product-supplier">${escapeHtml(it.supplier || "")}</span>
           </div>
           ${link}
+          ${addBtn}
         </div>
       `;
     }
@@ -1485,6 +1725,245 @@
         { rootMargin: "200px" }
       );
       _catalogObserver.observe(sentinel);
+    }
+
+    // ─── Garybot bridge (Phase 3D) ──────────────────────────────────
+    async function fetchDrafts() {
+      if (S.draftsLoaded) return;
+      try {
+        const resp = await fetch(`${CONFIG.garybotApiUrl}/orders/draft`, {
+          headers: { "x-api-secret": CONFIG.apiSecret },
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        S.drafts = await resp.json();
+        S.draftsLoaded = true;
+      } catch (e) {
+        showToast(`Erreur chargement devis : ${e.message}`, "error");
+      }
+    }
+
+    async function postLine(orderId, payload) {
+      const resp = await fetch(`${CONFIG.garybotApiUrl}/orders/${orderId}/lines`, {
+        method: "POST",
+        headers: {
+          "x-api-secret": CONFIG.apiSecret,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      return await resp.json();
+    }
+
+    async function openAddToQuoteModal(item) {
+      S.modal = {
+        item,
+        selectedColor: null,
+        selectedSize: null,
+        selectedOrderId: null,
+        submitting: false,
+      };
+
+      const { colors, sizes } = getDisplayVariants(item);
+      if (colors.length === 1) S.modal.selectedColor = colors[0];
+      if (sizes.length === 1) S.modal.selectedSize = sizes[0];
+
+      render();
+      await fetchDrafts();
+      if (!S.modal) return; // closed during fetch
+
+      if (S.lastSelectedOrderId && S.drafts.find((d) => d.id === S.lastSelectedOrderId)) {
+        S.modal.selectedOrderId = S.lastSelectedOrderId;
+      } else if (S.drafts.length > 0) {
+        S.modal.selectedOrderId = S.drafts[0].id;
+      }
+      render();
+    }
+
+    function openAddToQuoteModalById(itemId) {
+      const item = S.catalog.itemsById?.[itemId];
+      if (!item) {
+        showToast("Item introuvable", "error");
+        return;
+      }
+      openAddToQuoteModal(item);
+    }
+
+    function closeModal() {
+      S.modal = null;
+      render();
+    }
+
+    async function submitAddToQuote() {
+      if (!S.modal || S.modal.submitting) return;
+      const item = S.modal.item;
+      const orderId = S.modal.selectedOrderId;
+      if (!orderId) return;
+
+      const variantParts = [];
+      if (S.modal.selectedColor) variantParts.push(S.modal.selectedColor);
+      if (S.modal.selectedSize) variantParts.push(S.modal.selectedSize);
+      const variant = variantParts.join(" / ") || null;
+
+      const priceTtc = item.price_eur != null ? parseFloat(item.price_eur) : null;
+      if (priceTtc == null || Number.isNaN(priceTtc)) {
+        showToast("Prix indisponible — impossible d'ajouter", "error");
+        return;
+      }
+
+      const payload = {
+        category: item.category,
+        price_ttc: priceTtc,
+        brand: item.brand || null,
+        name: item.name,
+        variant,
+        supplier: item.supplier,
+        supplier_ref: item.supplier_ref || null,
+        product_url: item.product_url || null,
+      };
+
+      S.modal.submitting = true;
+      render();
+
+      try {
+        await postLine(orderId, payload);
+        S.lastSelectedOrderId = orderId;
+        const order = S.drafts.find((d) => d.id === orderId);
+        const orderLabel = order ? `${order.name} — ${order.partner_name || "Sans nom"}` : `#${orderId}`;
+        showToast(`✅ Ligne ajoutée au devis ${orderLabel}`, "success");
+        closeModal();
+      } catch (e) {
+        showToast(`❌ Erreur : ${e.message}`, "error");
+        if (S.modal) {
+          S.modal.submitting = false;
+          render();
+        }
+      }
+    }
+
+    function showToast(message, type = "info") {
+      const ts = Date.now();
+      S.toast = { message, type, timestamp: ts };
+      render();
+      setTimeout(() => {
+        if (S.toast && S.toast.timestamp === ts) {
+          S.toast = null;
+          render();
+        }
+      }, 3000);
+    }
+
+    function dismissToast() {
+      S.toast = null;
+      render();
+    }
+
+    function renderModal() {
+      if (!S.modal) return "";
+      const item = S.modal.item;
+      const { colors, sizes } = getDisplayVariants(item);
+      const needsColor = colors.length > 1;
+      const needsSize = sizes.length > 1;
+      const draftsReady = S.draftsLoaded;
+
+      const canSubmit =
+        !S.modal.submitting &&
+        S.modal.selectedOrderId != null &&
+        (!needsColor || S.modal.selectedColor) &&
+        (!needsSize || S.modal.selectedSize);
+
+      const productImg = item.image_url
+        ? `<img src="${escapeHtml(item.image_url)}" alt="" class="modal-product-img" onerror="this.style.display='none'">`
+        : "";
+
+      const colorOptions = needsColor
+        ? `<div class="modal-field">
+             <label>Couleur :</label>
+             <div class="modal-options">
+               ${colors.map((c) => {
+                 const style = getColorStyle(c);
+                 const styleStr = Object.entries(style).map(([k, v]) => `${k}:${v}`).join(";");
+                 const sel = S.modal.selectedColor === c ? " modal-option-selected" : "";
+                 return `<button class="modal-option${sel}" data-modal-color="${escapeHtml(c)}">
+                           <span class="color-dot" style="${styleStr}"></span>${escapeHtml(c)}
+                         </button>`;
+               }).join("")}
+             </div>
+           </div>`
+        : "";
+
+      const sizeOptions = needsSize
+        ? `<div class="modal-field">
+             <label>Taille :</label>
+             <div class="modal-options">
+               ${sizes.map((s) => {
+                 const sel = S.modal.selectedSize === s ? " modal-option-selected" : "";
+                 return `<button class="modal-option${sel}" data-modal-size="${escapeHtml(s)}">${escapeHtml(s)}</button>`;
+               }).join("")}
+             </div>
+           </div>`
+        : "";
+
+      let draftsBlock;
+      if (!draftsReady) {
+        draftsBlock = `<div class="modal-empty">Chargement des devis…</div>`;
+      } else if (S.drafts.length === 0) {
+        draftsBlock = `<div class="modal-empty">Aucun devis en draft. Crée d'abord un devis dans Odoo.</div>`;
+      } else {
+        draftsBlock = `<select class="modal-select" data-modal-order>
+          ${S.drafts.map((d) => {
+            const sel = d.id === S.modal.selectedOrderId ? " selected" : "";
+            return `<option value="${d.id}"${sel}>${escapeHtml(d.name)} — ${escapeHtml(d.partner_name || "Sans nom")}</option>`;
+          }).join("")}
+        </select>`;
+      }
+
+      return `
+        <div class="modal-overlay" data-modal-overlay>
+          <div class="modal">
+            <div class="modal-header">
+              <h2>Ajouter au devis</h2>
+              <button class="modal-close" data-modal-close aria-label="Fermer">✕</button>
+            </div>
+            <div class="modal-body">
+              <div class="modal-product">
+                ${productImg}
+                <div class="modal-product-info">
+                  <div class="modal-product-brand">${escapeHtml(item.brand || "")}</div>
+                  <div class="modal-product-name">${escapeHtml(item.name || "")}</div>
+                  <div class="modal-product-price">${item.price_eur != null ? fmtPrice(item.price_eur) : "—"} TTC</div>
+                  <div class="modal-product-supplier">Fournisseur : ${escapeHtml(item.supplier || "—")}</div>
+                </div>
+              </div>
+              ${colorOptions}
+              ${sizeOptions}
+              <div class="modal-field">
+                <label>Devis cible :</label>
+                ${draftsBlock}
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-secondary" data-modal-cancel>Annuler</button>
+              <button class="btn-primary" data-modal-submit ${canSubmit ? "" : "disabled"}>
+                ${S.modal.submitting ? "Ajout…" : "Ajouter au devis"}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderToast() {
+      if (!S.toast) return "";
+      return `
+        <div class="toast-bottom toast-${escapeHtml(S.toast.type)}">
+          <span class="toast-message">${escapeHtml(S.toast.message)}</span>
+          <button class="toast-close" data-toast-close aria-label="Fermer">✕</button>
+        </div>
+      `;
     }
 
     // ─── Event handlers ─────────────────────────────────────────────
@@ -1628,6 +2107,46 @@
         S.catalog.direction = d;
         fetchCatalog(true);
       });
+
+      // Catalog: "Ajouter au devis" buttons → modal
+      document.querySelectorAll("[data-add-to-quote]").forEach((b) => {
+        b.addEventListener("click", () => openAddToQuoteModalById(b.dataset.addToQuote));
+      });
+
+      // Modal: dismiss
+      document.querySelector("[data-modal-overlay]")?.addEventListener("click", (e) => {
+        if (e.target.matches("[data-modal-overlay]")) closeModal();
+      });
+      document.querySelector("[data-modal-close]")?.addEventListener("click", closeModal);
+      document.querySelector("[data-modal-cancel]")?.addEventListener("click", closeModal);
+
+      // Modal: variant selectors
+      document.querySelectorAll("[data-modal-color]").forEach((b) => {
+        b.addEventListener("click", () => {
+          if (!S.modal) return;
+          S.modal.selectedColor = b.dataset.modalColor;
+          render();
+        });
+      });
+      document.querySelectorAll("[data-modal-size]").forEach((b) => {
+        b.addEventListener("click", () => {
+          if (!S.modal) return;
+          S.modal.selectedSize = b.dataset.modalSize;
+          render();
+        });
+      });
+
+      // Modal: order dropdown + submit
+      document.querySelector("[data-modal-order]")?.addEventListener("change", (e) => {
+        if (!S.modal) return;
+        const v = parseInt(e.target.value, 10);
+        S.modal.selectedOrderId = Number.isFinite(v) ? v : null;
+        render();
+      });
+      document.querySelector("[data-modal-submit]")?.addEventListener("click", submitAddToQuote);
+
+      // Toast: dismiss
+      document.querySelector("[data-toast-close]")?.addEventListener("click", dismissToast);
     }
 
     // ─── Boot ────────────────────────────────────────────────────────
