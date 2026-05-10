@@ -191,6 +191,18 @@ URL et auth de garybot-api : `CONFIG.garybotApiUrl` + `CONFIG.apiSecret` (= `ali
 
 Note : le total du devis Odoo n'est pas recalculé immédiatement après création — Odoo le recalcule à l'ouverture du devis dans son UI (workflow normal puisque l'édition fine se fait dans Odoo, pas dans GaryBot).
 
+### Phase 3E : Mode informatif (commandes Shopify validées)
+
+Quand l'utilisateur sélectionne dans le modal une commande Odoo déjà validée (`state='sale'`), le mode "ligne informative" s'active **automatiquement** :
+- Préfixe 🔒 dans le dropdown pour distinguer drafts et commandes validées
+- Bandeau bleu sous le dropdown explique que prix=0 et n'affectera pas le total
+- Bouton submit devient "Ajouter (ligne info)"
+- Toast de confirmation différent (ℹ️ au lieu de ✅)
+
+Le backend (`garybot-api`) détecte le mode automatiquement via le `state` de l'order. Le frontend n'envoie pas de flag explicite ; il lit juste `informative_mode` dans la réponse pour adapter le toast.
+
+Cas d'usage : commandes Shopify "boitier custom" où Bernabot crée 1 seule ligne globale dans Odoo, et Pierre détaille le contenu pour l'atelier sans toucher au total facturé.
+
 ### Phase 3B++.3 : Variantes UI
 
 **Affichage** : pastilles couleur (avec tooltip) + pills tailles sur chaque carte produit.

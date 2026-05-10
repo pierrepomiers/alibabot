@@ -92,6 +92,25 @@
 - [x] Frontend : grille de cartes (photo + brand + name + price + supplier + lien)
 - [x] Frontend : scroll infini via IntersectionObserver
 
+## ✅ Phase 3E — Done
+
+### Backend (garybot-api)
+- [x] /orders/draft inclut state='sale' du dernier mois
+- [x] POST /orders/{id}/lines détecte state='sale' → mode informatif (qty=0, price=0, pas de TVA)
+- [x] Réponse JSON enrichie : `informative_mode`, `order_state`
+
+### Frontend (alibabot)
+- [x] 🔒 préfixe dans dropdown pour les commandes validées
+- [x] Bandeau info dans le modal si mode informatif
+- [x] Bouton submit adapté ("Ajouter (ligne info)")
+- [x] Toast adapté selon le mode
+
+## 🚧 Phase 3E — À tester côté utilisateur
+
+- [ ] Sur une commande draft : comportement nominal Phase 3D inchangé
+- [ ] Sur une commande validée : 3 lignes ajoutées, total inchangé
+- [ ] Si Odoo refuse qty=0 : implémenter plan B (line_note pour ligne 1)
+
 ## ✅ Phase 3D — Done
 
 - [x] `CONFIG.garybotApiUrl` ajouté au frontend
