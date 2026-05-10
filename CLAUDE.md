@@ -2,6 +2,36 @@
 
 > Document de référence pour Claude Code. À lire avant toute intervention.
 
+## 🏁 Statut projet
+
+**Alibabot est en production**, l'écosystème complet est livré.
+
+Pipeline opérationnel :
+1. Cron hebdomadaire (lundi 2h UTC) → scrape 4 fournisseurs (~1226 items)
+2. Normalisation des variantes (size + color, FR→EN, TitleCase)
+3. Snapshot pending dans Supabase
+4. Validation manuelle via le frontend (vue Validation)
+5. Catalogue actif consultable (vue Catalogue avec filtres facettés, recherche, scroll infini, pastilles couleur, pills tailles)
+6. Bouton "Ajout devis/cmd" sur chaque carte produit
+7. Modal d'ajout : sélection variante + sélection devis/commande Odoo
+8. Détection auto du mode informatif (commandes `state='sale'` → qty=0, prix=0)
+9. POST garybot-api → 3 lignes Odoo créées (1 produit + 2 notes)
+
+URLs en production :
+- Frontend : https://pierrepomiers.github.io/alibabot/
+- API alibabot : https://alibabot.onrender.com
+- API garybot (Odoo) : https://garybot-api.onrender.com
+- Supabase project : wmlxljwabqpiosvhmmmd
+
+Phases livrées : 1, 2A, 2B, 2C, 3A, 3B, 3B+, 3B++.1, 3B++.1bis, 3B++.3, 3C, 3D, 3E, 3F.
+
+Backlog (non urgent) :
+- Variantes Viral via fetch fiche produit (couverture +30%)
+- Filtres color/size couvrant aussi variants Shopify (FCS, Surf Lounge)
+- Cross-filter facets (compteurs intelligents)
+- Comparateur multi-fournisseurs (même produit chez plusieurs)
+- Renommer `garybot-api` → `notox-odoo-api` (cohérence)
+
 ## 1. Qui / Quoi
 
 **Alibabot** = catalogue multi-fournisseurs de matériel de surf pour NOTOX (GREEN WAVE SAS, Anglet).

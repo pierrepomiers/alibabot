@@ -3,6 +3,15 @@
 > Fichier vivant. À mettre à jour à chaque session de travail.
 > Format : checkbox + scope + description.
 
+## ✅ Phase 3F — Done (mini-fixes + clôture)
+
+- [x] Bouton-au-survol des cartes : label raccourci "+ Ajout devis/cmd"
+- [x] Backend : préfixe URL ligne note `👉` → `-->` (compat PDF Odoo)
+
+## 🎉 PROJET ALIBABOT — TERMINÉ ET EN PRODUCTION
+
+L'écosystème complet est livré. Voir `CLAUDE.md` pour le pipeline détaillé.
+
 ## 🚧 Phase 1 — Scrapers
 
 ### Handles de collections à confirmer
