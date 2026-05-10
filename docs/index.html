@@ -818,6 +818,19 @@
       font-size: 0.85rem;
       text-align: center;
     }
+    .modal-info-banner {
+      background: rgba(74, 158, 255, 0.10);
+      border: 1px solid rgba(74, 158, 255, 0.35);
+      border-radius: 6px;
+      padding: 0.7rem 0.9rem;
+      margin: 0 0 1rem 0;
+      color: var(--text);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .modal-info-banner strong {
+      color: var(--accent);
+    }
 
     .btn-primary {
       background: var(--accent);
@@ -1829,11 +1842,15 @@
       render();
 
       try {
-        await postLine(orderId, payload);
+        const result = await postLine(orderId, payload);
         S.lastSelectedOrderId = orderId;
         const order = S.drafts.find((d) => d.id === orderId);
         const orderLabel = order ? `${order.name} — ${order.partner_name || "Sans nom"}` : `#${orderId}`;
-        showToast(`✅ Ligne ajoutée au devis ${orderLabel}`, "success");
+        if (result && result.informative_mode) {
+          showToast(`ℹ️ Ligne informative ajoutée à ${orderLabel}`, "info");
+        } else {
+          showToast(`✅ Ligne ajoutée au devis ${orderLabel}`, "success");
+        }
         closeModal();
       } catch (e) {
         showToast(`❌ Erreur : ${e.message}`, "error");
@@ -1861,6 +1878,11 @@
       render();
     }
 
+    function getSelectedOrder() {
+      if (!S.modal || !S.modal.selectedOrderId) return null;
+      return (S.drafts || []).find((d) => d.id === S.modal.selectedOrderId) || null;
+    }
+
     function renderModal() {
       if (!S.modal) return "";
       const item = S.modal.item;
@@ -1868,6 +1890,8 @@
       const needsColor = colors.length > 1;
       const needsSize = sizes.length > 1;
       const draftsReady = S.draftsLoaded;
+      const selectedOrder = getSelectedOrder();
+      const isInformative = !!(selectedOrder && selectedOrder.state === "sale");
 
       const canSubmit =
         !S.modal.submitting &&
@@ -1916,7 +1940,10 @@
         draftsBlock = `<select class="modal-select" data-modal-order>
           ${S.drafts.map((d) => {
             const sel = d.id === S.modal.selectedOrderId ? " selected" : "";
-            return `<option value="${d.id}"${sel}>${escapeHtml(d.name)} — ${escapeHtml(d.partner_name || "Sans nom")}</option>`;
+            const isSale = d.state === "sale";
+            const labelPrefix = isSale ? "🔒 " : "";
+            const tail = isSale ? " (info)" : "";
+            return `<option value="${d.id}"${sel}>${labelPrefix}${escapeHtml(d.name)} — ${escapeHtml(d.partner_name || "Sans nom")}${tail}</option>`;
           }).join("")}
         </select>`;
       }
@@ -1944,11 +1971,16 @@
                 <label>Devis cible :</label>
                 ${draftsBlock}
               </div>
+              ${isInformative ? `
+                <div class="modal-info-banner">
+                  ℹ️ Cette commande est déjà <strong>validée</strong>. La ligne sera ajoutée en mode <strong>informatif</strong> (prix 0, ne modifie pas le total).
+                </div>
+              ` : ""}
             </div>
             <div class="modal-footer">
               <button class="btn-secondary" data-modal-cancel>Annuler</button>
               <button class="btn-primary" data-modal-submit ${canSubmit ? "" : "disabled"}>
-                ${S.modal.submitting ? "Ajout…" : "Ajouter au devis"}
+                ${S.modal.submitting ? "Ajout…" : (isInformative ? "Ajouter (ligne info)" : "Ajouter au devis")}
               </button>
             </div>
           </div>
