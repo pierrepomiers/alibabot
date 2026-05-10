@@ -1,146 +1,167 @@
-# 🛒 Alibabot
+# Alibabot 🧞‍♂️
 
-> *« Sésame, ouvre-toi ! »*
+Catalogue multi-fournisseurs pour NOTOX (planches de surf custom). Aide au sourcing d'accessoires (dérives, leashes, pads, housses, transport) avec injection directe dans les devis Odoo.
 
-Catalogue multi-fournisseurs de matériel de surf pour **NOTOX / GREEN WAVE SAS**.
+🌐 **App en production** : https://pierrepomiers.github.io/alibabot/
 
-Scrape les catalogues publics de plusieurs fournisseurs surf, agrège les produits et permettra (Phase 2-3) de pousser des lignes dans des devis Odoo.
+---
 
-## État actuel : Phase 2B — API REST déployée
+## Ce qu'Alibabot fait pour toi
 
-CLI scraping ✅ + Supabase ✅ + cron mensuel ✅ + **API FastAPI sur Render ✅**. Frontend GitHub Pages à venir (Phase 3).
+- Scrape automatiquement 4 fournisseurs (Viral Surf, FCS Europe, Surf Lounge, Deflow Surf) chaque lundi matin
+- Centralise ~1200 produits, normalise couleurs et tailles, expose des filtres facettés (marque, catégorie, couleur, taille, prix, dispo)
+- Versionne le catalogue en snapshots : tu valides chaque nouvelle version (accept / reject / restore) avant qu'elle remplace l'active
+- Bouton **+ Ajout devis/cmd** sur chaque produit qui injecte 3 lignes dans un devis Odoo (1 produit générique + 2 notes : nom détaillé + lien vers la fiche fournisseur)
+- Détecte automatiquement les commandes Odoo déjà validées (Shopify "boitier custom") et bascule en mode "ligne informative" (qty=0, prix=0) pour ne pas toucher au total
 
-## Catégories ciblées
+---
 
-`fins` · `leashes` · `pads` · `covers` · `transport`
+## Stack
 
-Tout produit hors de ces catégories est automatiquement rejeté (et loggé pour audit).
-
-## Fournisseurs
-
-| Slug | Nom | Plateforme |
+| Composant | Tech | Hébergement |
 |---|---|---|
-| `viral` | Viral Surf | PrestaShop |
-| `fcs` | FCS Europe | Shopify (Cloudflare) |
-| `surflounge` | Surf Lounge | Shopify |
-| `deflow` | Deflow Surf | Shopify |
+| Frontend | Vanilla JS, monolithe `docs/index.html` | GitHub Pages |
+| API alibabot | FastAPI (Python 3.11+) | Render free tier |
+| DB | Supabase Postgres + Auth | Supabase free tier |
+| Scrapers | Python (`httpx`, `selectolax`, `pydantic v2`) | Local + GitHub Actions cron |
+| Intégration Odoo | via `garybot-api` (repo séparé) | Render free tier |
 
-## Installation
+---
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
+## Comment ça marche au quotidien
+
+### 1. Un client demande un accessoire en magasin
+1. Tu ouvres https://pierrepomiers.github.io/alibabot/
+2. Onglet **Catalogue**
+3. Tu cherches / filtres (marque, catégorie, couleur, taille, prix, en stock)
+4. Tu vois prix TTC + dispo + variantes chez chaque fournisseur
+
+### 2. Tu prépares un devis pour un client
+1. Tu trouves les accessoires dans le catalogue
+2. Survol carte → bouton **+ Ajout devis/cmd**
+3. Tu sélectionnes la couleur/taille puis le devis Odoo cible (les 50 derniers drafts)
+4. Le produit + ses 2 notes sont injectés dans Odoo, total recalculé à l'ouverture
+
+### 3. Commande Shopify "boitier custom"
+Bernabot a importé la commande en 1 ligne globale. Tu veux détailler le contenu pour l'atelier sans toucher au total facturé.
+1. Tu ajoutes les produits depuis Alibabot
+2. Tu sélectionnes la commande validée (préfixée 🔒 dans le dropdown)
+3. Mode informatif activé auto (qty=0, prix=0) — bandeau bleu et bouton "Ajouter (ligne info)"
+4. Lignes ajoutées comme info, total inchangé
+
+### 4. Valider le catalogue après scrape hebdo
+Chaque lundi matin, un nouveau snapshot `pending` arrive.
+1. Onglet **Validation**
+2. Cliquer **Voir le diff** sur le pending
+3. Vérifier ajouts / retraits / changements de prix
+4. **Accept** (active le snapshot, archive l'ancien) ou **Reject** avec une raison
+
+---
+
+## Architecture
+
+```
+┌──────────────────┐   cron lundi 2h UTC    ┌──────────────────┐
+│ GitHub Actions   │ ─────────────────────► │  4 fournisseurs  │
+│ (scrape + push)  │ ◄───── ~1200 items ──── │ (HTTP public)    │
+└──────────────────┘                         └──────────────────┘
+         │
+         │ snapshot pending
+         ▼
+┌──────────────────┐    REST + JWT/secret   ┌──────────────────┐
+│ Supabase Postgres│ ◄────────────────────► │ FastAPI (Render) │
+│ catalog_snapshots│                         │ alibabot.onrender│
+│ catalog_items    │                         └──────────────────┘
+└──────────────────┘                                 ▲
+                                                     │
+                                            ┌──────────────────┐
+                                            │ Frontend (Pages) │
+                                            │ docs/index.html  │
+                                            └──────────────────┘
+                                                     │ + Ajout
+                                                     ▼
+                                            ┌──────────────────┐
+                                            │ garybot-api      │
+                                            │ ─► Odoo XML-RPC  │
+                                            └──────────────────┘
 ```
 
-## Usage
+---
 
-```bash
-# Lister les fournisseurs configurés
-alibabot list-suppliers
+## Maintenance & opérations
 
-# Scrape tous les fournisseurs
-alibabot scrape
+### Variables d'environnement
 
-# Scrape un seul fournisseur (debug)
-alibabot scrape-one deflow
+**Render — service `alibabot-api`**
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `API_SECRET=alibabot2026`
 
-# Output personnalisé
-alibabot scrape --out ./mes-snapshots
-```
+**Render — service `garybot-api` (repo séparé, hub Odoo)**
+- `API_SECRETS=notox2026,alibabot2026` (multi-secrets, virgules)
+- `ODOO_URL`, `ODOO_DB`, `ODOO_USER`, `ODOO_API_KEY`
 
-Les snapshots sont écrits dans `snapshots/<timestamp>.json`.
-
-## Phase 2A — Persistence Supabase
-
-Scraping mensuel automatique via GitHub Actions, stockage Supabase.
-
-### Configuration locale (pour tester)
-
-Crée un `.env` à la racine :
-
-```bash
-SUPABASE_URL=https://wmlxljwabqpiosvhmmmd.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<la_service_role_key>
-```
-
-Puis :
-
-```bash
-# Pousser un snapshot JSON local vers Supabase
-alibabot push-snapshot snapshots/2026-05-03T17-34-48.json
-
-# Lister les snapshots stockés
-alibabot list-snapshots
-alibabot list-snapshots --status pending
-```
-
-### Cron GitHub Actions
-
-Le workflow `.github/workflows/nightly-scrape.yml` tourne automatiquement le 1er de chaque mois à 3h UTC. Trigger manuel possible via "Actions → Monthly catalog scrape → Run workflow".
-
-Secrets requis (à configurer dans Settings → Secrets → Actions) :
+**GitHub Actions secrets** (pour le cron de scrape)
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-## Phase 2B — API REST (FastAPI)
-
-API REST déployée sur Render (free tier), auto-deploy on push `main`. Source dans `api/`, config dans `render.yaml`.
-
-### Lancer en local
+### Commandes locales
 
 ```bash
-source .venv/bin/activate
-set -a; source .env; set +a
-export API_SECRET=alibabot2026
+cd alibabot && source .venv/bin/activate && set -a; source .env; set +a
 
-uvicorn api.main:app --reload --port 8000
+alibabot list-suppliers                              # config YAML chargée
+alibabot scrape                                      # scrape complet (~2 min)
+alibabot scrape-one deflow                           # un seul fournisseur
+alibabot list-snapshots                              # via Supabase
+alibabot push-snapshot snapshots/<file>.json         # push manuel
+alibabot validate-normalizer snapshots/<file>.json   # diagnostic couverture
 ```
 
-`.env` doit contenir `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY`.
+### Déclencher un scrape manuel
 
-### Endpoints
+GitHub → onglet **Actions** → workflow **Weekly catalog scrape** → **Run workflow**.
 
-Toutes les routes (sauf `/health` et `/config`) attendent le header `x-api-secret`.
+### Restaurer un ancien snapshot
 
-```bash
-# Health (no auth)
-curl http://localhost:8000/health
+Onglet **Validation** → trouver l'archived → bouton **🔄 Restaurer**.
 
-# Config check
-curl http://localhost:8000/config
+### Modifier la rétention
 
-# Snapshots
-curl -H "x-api-secret: alibabot2026" http://localhost:8000/snapshots
-curl -H "x-api-secret: alibabot2026" "http://localhost:8000/snapshots?status=pending"
-curl -H "x-api-secret: alibabot2026" "http://localhost:8000/snapshots/<snap_id>/diff?detail=summary"
+Fonction `purge_old_snapshots()` dans `db/schema.sql`. Modifier les `interval '7 days'` (rejected, pending) et `interval '60 days'` (archived) puis ré-exécuter dans le SQL Editor Supabase.
 
-# Validation manuelle
-curl -X POST -H "x-api-secret: alibabot2026" "http://localhost:8000/snapshots/<snap_id>/accept?activated_by=pierre"
-curl -X POST -H "x-api-secret: alibabot2026" "http://localhost:8000/snapshots/<snap_id>/reject?reason=test"
+### Ajouter un fournisseur Shopify
 
-# Catalogue actif
-curl -H "x-api-secret: alibabot2026" "http://localhost:8000/catalog/active?supplier=fcs&category=fins&limit=10"
-curl -H "x-api-secret: alibabot2026" "http://localhost:8000/catalog/active/facets"
-```
+Ajouter une entrée dans `config/suppliers.yaml` (handle, catégorie, brand par défaut). **Pas de code à toucher.** Pour une nouvelle plateforme (autre que Shopify / PrestaShop) : créer un scraper dans `alibabot/scrapers/` et l'enregistrer dans `registry.py`.
 
-### Déploiement Render
+---
 
-1. New Web Service → connecte le repo `alibabot` → Render lit `render.yaml`
-2. Settings → Environment : ajouter `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `API_SECRET=alibabot2026`
-3. Premier deploy déclenché auto, puis auto-deploy on push `main`
-4. Configurer UptimeRobot ping `/health` toutes les 5 min (free tier sleep)
+## Limites connues
 
-## Configuration
+- **Filtre couleur/taille de l'API** : ne couvre que `inferred_options` (Viral, Deflow item-level). Les variants Shopify FCS / Surf Lounge ne sont pas filtrables via l'API mais leurs pastilles s'affichent sur les cartes.
+- **Couverture variantes Viral** : ~70-80% (extraction depuis le nom, best-effort — pas de fetch fiche produit).
+- **Cold start Render** : ~30 s au premier appel après inactivité (free tier). Pas de keep-alive externe en place.
+- **Pas de comparateur cross-fournisseurs** : le même produit chez plusieurs distributeurs apparaît plusieurs fois (backlog).
 
-**Toute modification de fournisseurs/collections se fait dans `config/suppliers.yaml`.** Pas dans le code.
+---
 
-## Roadmap
+## Documentation technique
 
-- [x] **Phase 1** — CLI scraping + snapshots JSON locaux
-- [x] **Phase 2A** — Persistence Supabase + cron mensuel GitHub Actions
-- [x] **Phase 2B** — API FastAPI sur Render + endpoints validation
-- [ ] **Phase 3** — Frontend GitHub Pages avec filtres + intégration Odoo
+- [`CLAUDE.md`](./CLAUDE.md) — Référence technique détaillée (conventions, schéma, endpoints, workflow)
+- [`todo-items.md`](./todo-items.md) — État des tâches et backlog
+- [`docs/index.html`](./docs/index.html) — Frontend monolithe vanilla JS
+- [`db/schema.sql`](./db/schema.sql) — Schéma Supabase + fonction de purge
 
-Voir `todo-items.md` pour le détail.
+---
+
+## URLs
+
+- Frontend : https://pierrepomiers.github.io/alibabot/
+- API alibabot : https://alibabot.onrender.com
+- API garybot (Odoo) : https://garybot-api.onrender.com
+- Supabase project : `wmlxljwabqpiosvhmmmd`
+- Repo : https://github.com/pierrepomiers/alibabot
+
+---
+
+*Construit en quelques jours par Pierre Pomiers (NOTOX) avec l'aide de Claude (Anthropic).*
