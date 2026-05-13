@@ -579,6 +579,22 @@
       text-transform: uppercase;
       white-space: nowrap;
     }
+    .product-badges {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .product-fin-system {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(74, 158, 255, 0.18);
+      color: var(--accent);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
     .product-link {
       font-size: 12px;
       color: var(--accent);
@@ -1000,6 +1016,7 @@
           max_price: null,
           color: null,
           size: null,
+          fin_system: null,
         },
         sort: "name",
         direction: "asc",
@@ -1230,7 +1247,7 @@
       S.catalog.filters = {
         supplier: null, category: null, brand: null, in_stock: null,
         q: "", min_price: null, max_price: null,
-        color: null, size: null,
+        color: null, size: null, fin_system: null,
       };
       S.catalog.sort = "name";
       S.catalog.direction = "asc";
@@ -1518,6 +1535,9 @@
 
       const supplierBlock = renderFacetGroup("Fournisseur", "supplier", facets.suppliers, f.supplier, false);
       const categoryBlock = renderFacetGroup("Catégorie", "category", facets.categories, f.category, false);
+      const finSystemBlock = f.category === "fins"
+        ? renderFacetGroup("Système de dérive", "fin_system", facets.fin_systems || [], f.fin_system, false)
+        : "";
       const brandBlock = renderFacetGroup("Marque", "brand", facets.brands, f.brand, true, 10);
       const colorBlock = renderColorFacetGroup(facets.colors || [], f.color);
       const sizeBlock = renderFacetGroup("Tailles", "size", facets.sizes || [], f.size, true, 8);
@@ -1526,6 +1546,7 @@
         <aside class="facets">
           ${supplierBlock}
           ${categoryBlock}
+          ${finSystemBlock}
           ${brandBlock}
           ${colorBlock}
           ${sizeBlock}
@@ -1715,7 +1736,12 @@
           ${renderVariantsBadges(it)}
           <div class="product-bottom">
             <span class="product-price">${price}</span>
-            <span class="product-supplier">${escapeHtml(it.supplier || "")}</span>
+            <div class="product-badges">
+              ${it.category === "fins" && it.inferred_options && it.inferred_options.fin_system
+                ? `<span class="product-fin-system">${escapeHtml(it.inferred_options.fin_system)}</span>`
+                : ""}
+              <span class="product-supplier">${escapeHtml(it.supplier || "")}</span>
+            </div>
           </div>
           ${link}
           ${addBtn}
@@ -2077,6 +2103,9 @@
           const key = el.dataset.facet;
           const val = el.value || null;
           S.catalog.filters[key] = val;
+          if (key === "category" && val !== "fins") {
+            S.catalog.filters.fin_system = null;
+          }
           fetchCatalog(true);
         });
       });
