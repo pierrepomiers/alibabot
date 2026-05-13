@@ -172,6 +172,7 @@ def validate_normalizer(
 
     sizes_seen: dict[str, Counter] = defaultdict(Counter)
     colors_seen: dict[str, Counter] = defaultdict(Counter)
+    fin_systems_seen: dict[str, Counter] = defaultdict(Counter)
     unmatched: dict[str, list[str]] = defaultdict(list)
 
     for item in snapshot.items:
@@ -195,6 +196,8 @@ def validate_normalizer(
         if item.inferred_options.get("color"):
             s["items_with_inferred_color"] += 1
             colors_seen[item.supplier][item.inferred_options["color"]] += 1
+        if item.inferred_options.get("fin_system"):
+            fin_systems_seen[item.supplier][item.inferred_options["fin_system"]] += 1
         if item.supplier == "viral" and not item.inferred_options:
             if len(unmatched[item.supplier]) < 50:
                 unmatched[item.supplier].append(item.name)
@@ -233,6 +236,12 @@ def validate_normalizer(
     for sup, counter in sorted(colors_seen.items()):
         top = counter.most_common(10)
         console.print(f"  {sup}: " + ", ".join(f"{v}({n})" for v, n in top))
+
+    console.print("\n[bold]Top fin_systems par fournisseur :[/]")
+    for sup, counter in sorted(fin_systems_seen.items()):
+        top = counter.most_common(15)
+        if top:
+            console.print(f"  {sup}: " + ", ".join(f"{v}({n})" for v, n in top))
 
     if show_unmatched > 0 and "viral" in unmatched:
         console.print(f"\n[bold red]{len(unmatched['viral'])} items Viral sans extraction :[/]")
