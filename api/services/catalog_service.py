@@ -17,6 +17,37 @@ ALLOWED_SORTS = {
 }
 
 
+def _item_matches_color(item: dict, color: str) -> bool:
+    """Returns True if the item has the requested color, either:
+    - in inferred_options.color (Viral, Deflow item-level), OR
+    - in at least one available variant's normalized_options.color (FCS, Surf Lounge, Deflow variants)
+    """
+    inferred = item.get("inferred_options") or {}
+    if inferred.get("color") == color:
+        return True
+    for v in (item.get("variants") or []):
+        if not v.get("available"):
+            continue
+        opts = v.get("normalized_options") or {}
+        if opts.get("color") == color:
+            return True
+    return False
+
+
+def _item_matches_size(item: dict, size: str) -> bool:
+    """Same logic as _item_matches_color, for size."""
+    inferred = item.get("inferred_options") or {}
+    if inferred.get("size") == size:
+        return True
+    for v in (item.get("variants") or []):
+        if not v.get("available"):
+            continue
+        opts = v.get("normalized_options") or {}
+        if opts.get("size") == size:
+            return True
+    return False
+
+
 class CatalogService:
     def __init__(self, storage: SupabaseStorage | None = None):
         self.storage = storage or SupabaseStorage()
@@ -76,12 +107,47 @@ class CatalogService:
         query = self.client.table("catalog_items").select("*", count="exact").eq("snapshot_id", snap_uuid)
         query = self._apply_filters(
             query, supplier, category, subcategory, brand, in_stock, q, min_price, max_price,
-            color=color, size=size,
         )
 
         sort_col = ALLOWED_SORTS.get(sort, "name")
         desc = direction == "desc"
-        query = query.order(sort_col, desc=desc).range(offset, offset + limit - 1)
+        query = query.order(sort_col, desc=desc)
+
+        needs_variant_filter = (color is not None) or (size is not None)
+
+        if needs_variant_filter:
+            all_items: list[dict] = []
+            cur_offset = 0
+            BATCH = 1000
+            while True:
+                page = query.range(cur_offset, cur_offset + BATCH - 1).execute().data or []
+                all_items.extend(page)
+                if len(page) < BATCH:
+                    break
+                cur_offset += BATCH
+
+            filtered = []
+            for item in all_items:
+                if color and not _item_matches_color(item, color):
+                    continue
+                if size and not _item_matches_size(item, size):
+                    continue
+                filtered.append(item)
+
+            total = len(filtered)
+            page_items = filtered[offset:offset + limit]
+
+            return {
+                "items": page_items,
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+                "snapshot_id": self.get_active_snapshot_label(),
+                "sort": sort,
+                "direction": direction,
+            }
+
+        query = query.range(offset, offset + limit - 1)
         result = query.execute()
 
         return {
@@ -195,9 +261,6 @@ class CatalogService:
         q,
         min_price,
         max_price,
-        *,
-        color: str | None = None,
-        size: str | None = None,
     ):
         if supplier:
             query = query.eq("supplier", supplier)
@@ -215,11 +278,4 @@ class CatalogService:
             query = query.gte("price_eur", float(min_price))
         if max_price is not None:
             query = query.lte("price_eur", float(max_price))
-        # Simple JSONB filter on inferred_options (covers Viral + Deflow item-level).
-        # FCS / Surf Lounge items whose color/size live only in variants[].normalized_options
-        # are not matched here; tracked in todo as Phase 3+ improvement.
-        if color:
-            query = query.eq("inferred_options->>color", color)
-        if size:
-            query = query.eq("inferred_options->>size", size)
         return query
