@@ -3,6 +3,7 @@ from decimal import Decimal
 from datetime import datetime
 from alibabot.models import CatalogItem, CatalogVariant
 from alibabot.normalizers.core import normalize_options, extract_from_name
+from alibabot.normalizers.fin_system import extract_fin_system
 from alibabot.scrapers.base import BaseScraper
 from alibabot.utils.http import fetch
 
@@ -100,6 +101,11 @@ class ShopifyScraper(BaseScraper):
 
         title = p.get("title", "")
         inferred = extract_from_name(self.supplier_id, title)
+
+        if category == "fins":
+            fs = extract_fin_system(title, tags)
+            if fs:
+                inferred["fin_system"] = fs
 
         return CatalogItem(
             supplier=self.supplier_id,

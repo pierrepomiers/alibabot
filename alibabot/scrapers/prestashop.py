@@ -6,6 +6,7 @@ import httpx
 from selectolax.parser import HTMLParser
 from alibabot.models import CatalogItem
 from alibabot.normalizers.core import extract_from_name
+from alibabot.normalizers.fin_system import extract_fin_system
 from alibabot.scrapers.base import BaseScraper
 from alibabot.utils.http import fetch
 
@@ -155,6 +156,11 @@ class PrestashopScraper(BaseScraper):
         detected_brand = extract_brand_from_name(name) or self.config.default_brand
 
         inferred = extract_from_name(self.supplier_id, name)
+
+        if category == "fins":
+            fs = extract_fin_system(name, tags=[])
+            if fs:
+                inferred["fin_system"] = fs
 
         return CatalogItem(
             supplier=self.supplier_id,
