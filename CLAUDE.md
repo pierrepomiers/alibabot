@@ -27,7 +27,6 @@ Phases livrées : 1, 2A, 2B, 2C, 3A, 3B, 3B+, 3B++.1, 3B++.1bis, 3B++.3, 3C, 3D,
 
 Backlog (non urgent) :
 - Variantes Viral via fetch fiche produit (couverture +30%)
-- Filtres color/size couvrant aussi variants Shopify (FCS, Surf Lounge)
 - Cross-filter facets (compteurs intelligents)
 - Comparateur multi-fournisseurs (même produit chez plusieurs)
 - Renommer `garybot-api` → `notox-odoo-api` (cohérence)
