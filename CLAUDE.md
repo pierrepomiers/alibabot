@@ -245,7 +245,7 @@ Cas d'usage : commandes Shopify "boitier custom" où Bernabot crée 1 seule lign
 - API : `/catalog/active?color=Black&size=M`
 - `/catalog/active/facets` retourne `colors[]` et `sizes[]` (top 50 chacun)
 
-**Limite connue** : le filtre `color`/`size` côté API ne match que `inferred_options` (Viral + Deflow). Les items FCS / Surf Lounge dont la couleur ne vit que dans `variants[].normalized_options` ne sont pas matchés par le filtre — ils restent navigables via les autres filtres (marque, catégorie). Cross-filter complet à reprendre Phase 3+ si besoin.
+**Filtrage variant-aware** : le filtre `color`/`size` couvre désormais à la fois `inferred_options` (Viral, Deflow item-level) ET `variants[].normalized_options` (FCS, Surf Lounge, Deflow variants Shopify). Quand un filtre variant est actif, l'API charge tous les items matchant les autres filtres puis applique le filtrage Python en mémoire avant pagination. Performance OK jusqu'à ~5000 items ; au-delà, envisager une fonction SQL custom.
 
 ### URL de la page
 

@@ -3,6 +3,12 @@
 > Fichier vivant. À mettre à jour à chaque session de travail.
 > Format : checkbox + scope + description.
 
+## ✅ Fix — filtre color/size couvre maintenant tous les fournisseurs
+
+- [x] Filtrage variant-aware : matche `inferred_options` OU `variants[].normalized_options` avec available=true
+- [x] Pagination en mémoire quand un filtre color/size est actif
+- [x] FCS, Surf Lounge, Deflow variants désormais filtrables (bug observé : FCS+Black retournait 0)
+
 ## ✅ Phase 3F — Done (mini-fixes + clôture)
 
 - [x] Bouton-au-survol des cartes : label raccourci "+ Ajout devis/cmd"
@@ -155,7 +161,6 @@ Action restante côté utilisateur :
 
 ## 📦 Phase 3+ — Améliorations futures
 
-- [ ] Filtres `color`/`size` couvrant aussi `variants[].normalized_options` (FCS, Surf Lounge) via JSONB containment
 - [ ] Cross-filter facets complets (compteurs intelligents qui ignorent le filtre courant)
 - [ ] Phase 3C : endpoints garybot-api pour Odoo
 - [ ] Migrer `regex=` → `pattern=` sur les `Query(...)` (`api/routes/catalog.py`, `api/routes/snapshots.py`) pour éviter le DeprecationWarning FastAPI
