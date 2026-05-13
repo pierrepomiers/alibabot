@@ -116,3 +116,7 @@ create index if not exists idx_items_inferred_size
     on catalog_items ((inferred_options->>'size'));
 create index if not exists idx_items_inferred_color
     on catalog_items ((inferred_options->>'color'));
+
+-- ─── Phase 3G.1 — Fin system index ─────────────────────────────────
+create index if not exists idx_items_inferred_fin_system
+    on catalog_items ((inferred_options->>'fin_system'));
