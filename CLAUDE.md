@@ -148,6 +148,8 @@ Les **valeurs sont canonicalisées** dans `normalizers/values.py` :
 
 Les `options` brutes sont préservées dans le champ original ; les valeurs canonicalisées vivent dans `normalized_options` (variantes Shopify) et `inferred_options` (item, pour Viral et Deflow).
 
+**Fin system** (depuis Phase 3G.1) : pour les items `category=fins`, un champ supplémentaire `inferred_options.fin_system` est extrait depuis les tags FCS (`Category:Thruster`, etc.) ou le nom du produit (`Dérives Thruster - ...`). Valeurs canoniques : Thruster, Quad, Twin, Single, Twinzer, Trailer, Keel, Longboard. Filtrable via `/catalog/active?fin_system=Thruster`, compteur dans `/catalog/active/facets`.
+
 Pour mesurer la qualité : `alibabot validate-normalizer snapshots/<file>.json`
 
 ## 6ter. Variables d'environnement
@@ -245,6 +247,8 @@ Cas d'usage : commandes Shopify "boitier custom" où Bernabot crée 1 seule lign
 - `/catalog/active/facets` retourne `colors[]` et `sizes[]` (top 50 chacun)
 
 **Filtrage variant-aware** : le filtre `color`/`size` couvre désormais à la fois `inferred_options` (Viral, Deflow item-level) ET `variants[].normalized_options` (FCS, Surf Lounge, Deflow variants Shopify). Quand un filtre variant est actif, l'API charge tous les items matchant les autres filtres puis applique le filtrage Python en mémoire avant pagination. Performance OK jusqu'à ~5000 items ; au-delà, envisager une fonction SQL custom.
+
+**Badge fin_system** (depuis Phase 3G.2) : pour les items `category=fins` ayant `inferred_options.fin_system`, un petit badge bleu affichant le system (Thruster, Quad, etc.) apparaît à côté du badge fournisseur. Filtrable via la sidebar (section "Système de dérive", visible uniquement quand `filters.category === "fins"`). Auto-reset du filtre quand on quitte la catégorie fins.
 
 ### URL de la page
 

@@ -3,6 +3,28 @@
 > Fichier vivant. À mettre à jour à chaque session de travail.
 > Format : checkbox + scope + description.
 
+## ✅ Phase 3G.2 — Done (frontend fin_system)
+
+- [x] Section sidebar "Système de dérive" (visible si category=fins)
+- [x] Badge fin_system sur les cartes produits fins
+- [x] Param fin_system envoyé à l'API
+- [x] Auto-reset fin_system quand on change de catégorie
+
+## ✅ Phase 3G.1 — Done (backend fin_system)
+
+- [x] Module `alibabot/normalizers/fin_system.py` (extraction tags + nom)
+- [x] Wire dans scrapers Shopify et PrestaShop
+- [x] CLI `validate-normalizer` étend l'affichage avec fin_systems
+- [x] API : paramètre `fin_system` sur `/catalog/active` et `/catalog/active/facets`
+- [x] Schéma Supabase : index sur `inferred_options->>'fin_system'`
+
+## 🚧 Phase 3G.1 — À faire côté utilisateur
+
+- [ ] Exécuter le SQL ALTER dans Supabase (index inferred_fin_system)
+- [ ] Re-scrape complet : `alibabot scrape`
+- [ ] Diagnostic : `alibabot validate-normalizer snapshots/<dernier>.json`
+- [ ] Si couverture OK : `alibabot push-snapshot snapshots/<dernier>.json`
+
 ## ✅ Fix — filtre color/size couvre maintenant tous les fournisseurs
 
 - [x] Filtrage variant-aware : matche `inferred_options` OU `variants[].normalized_options` avec available=true
