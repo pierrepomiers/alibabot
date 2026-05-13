@@ -126,5 +126,6 @@ class CatalogFacets(BaseModel):
     subcategories: list[FacetCount]
     colors: list[FacetCount] = Field(default_factory=list)
     sizes: list[FacetCount] = Field(default_factory=list)
+    fin_systems: list[FacetCount] = Field(default_factory=list)
     total: int
     snapshot_id: str | None = None

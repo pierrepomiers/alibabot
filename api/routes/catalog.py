@@ -23,6 +23,7 @@ async def list_active_items(
     max_price: Decimal | None = Query(default=None, ge=0),
     color: str | None = Query(default=None),
     size: str | None = Query(default=None),
+    fin_system: str | None = Query(default=None, description="Système de dérive (Thruster, Quad, Twin, ...)"),
     sort: str = Query(default="name", regex="^(name|price|brand|in_stock|recent)$"),
     direction: str = Query(default="asc", regex="^(asc|desc)$"),
     limit: int = Query(default=50, ge=1, le=500),
@@ -40,6 +41,7 @@ async def list_active_items(
         max_price=max_price,
         color=color,
         size=size,
+        fin_system=fin_system,
         sort=sort,
         direction=direction,
         limit=limit,
@@ -59,6 +61,7 @@ async def get_facets(
     max_price: Decimal | None = Query(default=None, ge=0),
     color: str | None = Query(default=None),
     size: str | None = Query(default=None),
+    fin_system: str | None = Query(default=None, description="Système de dérive (Thruster, Quad, Twin, ...)"),
 ):
     svc = CatalogService()
     return svc.get_facets(
@@ -72,4 +75,5 @@ async def get_facets(
         max_price=max_price,
         color=color,
         size=size,
+        fin_system=fin_system,
     )

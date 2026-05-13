@@ -48,6 +48,12 @@ def _item_matches_size(item: dict, size: str) -> bool:
     return False
 
 
+def _item_matches_fin_system(item: dict, fin_system: str) -> bool:
+    """Returns True if the item's inferred_options.fin_system matches."""
+    inferred = item.get("inferred_options") or {}
+    return inferred.get("fin_system") == fin_system
+
+
 class CatalogService:
     def __init__(self, storage: SupabaseStorage | None = None):
         self.storage = storage or SupabaseStorage()
@@ -92,6 +98,7 @@ class CatalogService:
         max_price: Decimal | None = None,
         color: str | None = None,
         size: str | None = None,
+        fin_system: str | None = None,
         sort: str = "name",
         direction: str = "asc",
         limit: int = 50,
@@ -113,7 +120,7 @@ class CatalogService:
         desc = direction == "desc"
         query = query.order(sort_col, desc=desc)
 
-        needs_variant_filter = (color is not None) or (size is not None)
+        needs_variant_filter = (color is not None) or (size is not None) or (fin_system is not None)
 
         if needs_variant_filter:
             all_items: list[dict] = []
@@ -131,6 +138,8 @@ class CatalogService:
                 if color and not _item_matches_color(item, color):
                     continue
                 if size and not _item_matches_size(item, size):
+                    continue
+                if fin_system and not _item_matches_fin_system(item, fin_system):
                     continue
                 filtered.append(item)
 
@@ -173,19 +182,20 @@ class CatalogService:
         max_price: Decimal | None = None,
         color: str | None = None,
         size: str | None = None,
+        fin_system: str | None = None,
     ) -> dict[str, Any]:
         """Compute facet counts. Loads all matching items (could be optimized later with SQL aggregation).
 
-        Color/size filter values are accepted for API symmetry but intentionally
-        NOT applied to the facet computation: we want users to switch between
-        colors/sizes without the count for the currently-selected option
-        collapsing to that selection.
+        Color/size/fin_system filter values are accepted for API symmetry but
+        intentionally NOT applied to the facet computation: we want users to
+        switch between values without the count for the currently-selected
+        option collapsing to that selection.
         """
         snap_uuid = self.get_active_snapshot_uuid()
         if not snap_uuid:
             return {
                 "suppliers": [], "brands": [], "categories": [], "subcategories": [],
-                "colors": [], "sizes": [],
+                "colors": [], "sizes": [], "fin_systems": [],
                 "total": 0, "snapshot_id": None,
             }
 
@@ -213,6 +223,7 @@ class CatalogService:
 
         colors: Counter = Counter()
         sizes: Counter = Counter()
+        fin_systems: Counter = Counter()
         for row in all_rows:
             inf = row.get("inferred_options") or {}
             inf_color = inf.get("color")
@@ -239,6 +250,10 @@ class CatalogService:
                         sizes[v_size] += 1
                         break
 
+            inf_fin_system = inf.get("fin_system")
+            if inf_fin_system:
+                fin_systems[inf_fin_system] += 1
+
         return {
             "suppliers": [{"value": k, "count": v} for k, v in suppliers.most_common()],
             "brands": [{"value": k, "count": v} for k, v in brands.most_common()],
@@ -246,6 +261,7 @@ class CatalogService:
             "subcategories": [{"value": k, "count": v} for k, v in subcategories.most_common()],
             "colors": [{"value": k, "count": v} for k, v in colors.most_common(50)],
             "sizes": [{"value": k, "count": v} for k, v in sizes.most_common(50)],
+            "fin_systems": [{"value": k, "count": v} for k, v in fin_systems.most_common(20)],
             "total": len(all_rows),
             "snapshot_id": self.get_active_snapshot_label(),
         }
